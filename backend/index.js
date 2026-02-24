@@ -78,5 +78,9 @@ export function createServer() {
     app.set('io', io);
   };
 
+  app.get("/", (req, res) => {
+    res.send("Cab backend api is running")
+  });
+
   return app;
 }

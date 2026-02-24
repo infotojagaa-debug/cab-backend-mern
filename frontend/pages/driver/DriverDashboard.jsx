@@ -1,0 +1,830 @@
+﻿import React, { useState, useEffect, useMemo } from "react";
+import { useApp } from "../../contexts/AppContext";
+import { useRide } from "../../contexts/RideContext";
+import DriverMap from "../../components/map/DriverMap"; // Reusing existing DriverMap as it has the logic
+import LocationAutocomplete from "../../components/LocationAutocomplete";
+import { Search, Car, Wallet, Star, MapPin, Phone, MessageSquare, Clock, Coins, TrendingUp, LogOut, ShieldAlert, CheckCircle, Navigation, AlertTriangle, Play, Check, Route, Trophy, Award } from "lucide-react";
+import "../../global.css";
+import { getApiUrl } from "@/utils/api";
+
+
+function DriverDashboard() {
+    const { user, logout } = useApp();
+    const { activeRide, setActiveRide, newRequest, setNewRequest, timer, acceptRide, updateStatus, socket } = useRide();
+
+    // --- States ---
+    const [isOnline, setIsOnline] = useState(null); // Initial null to prevent flicker
+    const [isAccepting, setIsAccepting] = useState(false);
+    const [kycStatus, setKycStatus] = useState("approved"); // pending, approved, verified (approving by default for now as per design)
+    const [showKycModal, setShowKycModal] = useState(false);
+
+    const [earnings, setEarnings] = useState({ daily: 0, weekly: 0, monthly: 0 });
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [rating, setRating] = useState(5.0);
+    const [totalTrips, setTotalTrips] = useState(0);
+    const [searchCoords, setSearchCoords] = useState(null);
+    const [searchInput, setSearchInput] = useState("");
+    const [dailyMissions, setDailyMissions] = useState([]);
+    const [showSuccessCard, setShowSuccessCard] = useState(false);
+    const [lastEarnings, setLastEarnings] = useState(0);
+
+    // --- Refs for Navigation ---
+    const walletRef = React.useRef(null);
+    const earningsRef = React.useRef(null);
+    const missionsRef = React.useRef(null);
+    const feedbackRef = React.useRef(null);
+
+    const scrollToSection = (ref) => {
+        if (ref?.current) {
+            ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Add a temporary highlight or subtle pulse if needed
+            ref.current.classList.add('animate-pulse-subtle');
+            setTimeout(() => ref.current.classList.remove('animate-pulse-subtle'), 2000);
+        }
+    };
+
+    const [location, setLocation] = useState({ lat: 13.0827, lng: 80.2707 }); // Chennai Default
+    const locationRef = React.useRef(location);
+    const [routeCoords, setRouteCoords] = useState([]);
+    const [currentRouteIndex, setCurrentRouteIndex] = useState(0);
+    const [routeTarget, setRouteTarget] = useState(null); // pickup or dropoff
+
+    // --- Effects ---
+
+    // Load initial status
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = sessionStorage.getItem("authToken");
+                const res = await fetch(getApiUrl("/api/driver/profile"), {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setIsOnline(data.isOnline);
+                    setRating(data.rating || 5.0);
+                    setTotalTrips(data.totalTrips || 0);
+                    setWalletBalance(data.walletBalance || 0);
+
+                    if (data.earnings) {
+                        setEarnings({
+                            daily: data.earnings.today || 0,
+                            weekly: data.earnings.week || 0,
+                            monthly: data.earnings.month || 0
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching driver profile", err);
+            }
+        };
+        fetchProfile();
+    }, []);
+
+    const fetchDailyMissions = async () => {
+        try {
+            const token = sessionStorage.getItem("authToken");
+            const res = await fetch(getApiUrl("/api/rides"), {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                // Filter today's completed rides
+                const today = new Date().toDateString();
+                const filtered = data.filter(r =>
+                    new Date(r.createdAt).toDateString() === today &&
+                    r.status === 'completed'
+                );
+                setDailyMissions(filtered);
+            }
+        } catch (err) {
+            console.error("Error fetching daily missions", err);
+        }
+    };
+
+    useEffect(() => {
+        if (socket && activeRide?._id) {
+            socket.emit("joinRide", activeRide._id);
+            console.log("🚗 DriverDashboard: Joined ride room:", `ride_${activeRide._id}`);
+        }
+    }, [socket, activeRide?._id]);
+
+    useEffect(() => {
+        fetchDailyMissions();
+    }, []);
+
+    // Location Tracking & Simulation Effect
+    useEffect(() => {
+        locationRef.current = location;
+    }, [location]);
+
+    useEffect(() => {
+        let interval;
+        if (isOnline) {
+            interval = setInterval(() => {
+                const currentLoc = locationRef.current;
+                // If there's an active ride and it's in a movement phase (arriving or ongoing)
+                if (activeRide && (activeRide.status === "arriving" || activeRide.status === "ongoing")) {
+                    // Check for auto-arrival if we are arriving at pickup
+                    if (activeRide.status === "arriving") {
+                        const distToPickup = Math.sqrt(
+                            Math.pow(currentLoc.lat - activeRide.pickup.lat, 2) +
+                            Math.pow(currentLoc.lng - activeRide.pickup.lng, 2)
+                        );
+                        if (distToPickup < 0.0005) { // ~50 meters approx
+                            console.log("Auto-Arrival: Within 50m of pickup");
+                            updateStatus(activeRide._id, "arrived");
+                        }
+                    }
+
+                    // Check for auto-arrival at dropoff
+                    if (activeRide.status === "ongoing") {
+                        const distToDropoff = Math.sqrt(
+                            Math.pow(currentLoc.lat - activeRide.dropoff.lat, 2) +
+                            Math.pow(currentLoc.lng - activeRide.dropoff.lng, 2)
+                        );
+                        if (distToDropoff < 0.0005) {
+                            console.log("Auto-Arrival: Within 50m of dropoff");
+                            // We don't auto-complete, but we could show a message or alert
+                            // For simulation purposes, let's just log it and maybe the UI will show "Reached"
+                        }
+                    }
+
+                    // Simulation using Route Coordinates (Road Following)
+                    if (routeCoords && routeCoords.length > 0) {
+                        setCurrentRouteIndex(prevIndex => {
+                            const nextIndex = prevIndex + 2; // Move 2 steps at a time
+                            if (nextIndex < routeCoords.length) {
+                                const nextPoint = routeCoords[nextIndex];
+                                const newLoc = { lat: nextPoint.lat, lng: nextPoint.lng };
+
+                                setLocation(newLoc);
+                                if (socket?.connected) {
+                                    socket.emit("driverLocation", {
+                                        driverId: user?.id,
+                                        rideId: activeRide?.id || activeRide?._id,
+                                        location: newLoc
+                                    });
+                                }
+                                return nextIndex;
+                            }
+                            return prevIndex;
+                        });
+                    } else {
+                        // Fallback to linear movement...
+                        const targetLoc = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
+                        if (!targetLoc) return;
+
+                        setLocation(prev => {
+                            const step = 0.002;
+                            const latDiff = targetLoc.lat - prev.lat;
+                            const lngDiff = targetLoc.lng - prev.lng;
+                            const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
+
+                            if (distance < step) {
+                                const finalLoc = { lat: targetLoc.lat, lng: targetLoc.lng };
+                                if (socket?.connected) {
+                                    socket.emit("driverLocation", { driverId: user?.id, rideId: activeRide?._id, location: finalLoc });
+                                }
+                                return finalLoc;
+                            }
+
+                            const newLoc = {
+                                lat: prev.lat + (latDiff / distance) * step,
+                                lng: prev.lng + (lngDiff / distance) * step
+                            };
+
+                            if (socket?.connected) {
+                                socket.emit("driverLocation", { driverId: user?.id, rideId: activeRide?._id, location: newLoc });
+                            }
+                            return newLoc;
+                        });
+                    }
+                } else {
+                    // Just track if idle (No active ride)
+                    if (navigator.geolocation && isOnline && (!activeRide || activeRide.status === 'idle')) {
+                        navigator.geolocation.getCurrentPosition((pos) => {
+                            const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                            setLocation(newLoc);
+                            if (socket?.connected) {
+                                socket.emit("driverLocation", { driverId: user.id, location: newLoc });
+                            }
+                        }, (err) => console.warn(err), { enableHighAccuracy: true });
+                    }
+                }
+            }, 800);
+        }
+        return () => clearInterval(interval);
+    }, [isOnline, activeRide, socket, user, routeCoords, routeTarget]);
+
+    // Manage simulation target and reset index when target changes
+    useEffect(() => {
+        if (!activeRide || !["arriving", "ongoing", "arrived", "driver_assigned"].includes(activeRide.status)) {
+            setRouteTarget(null);
+            setRouteCoords([]);
+            setCurrentRouteIndex(0);
+            return;
+        }
+
+        // Determine current target based on status
+        const newTarget = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
+
+        // If target switched, reset route and index
+        if (!routeTarget || routeTarget.lat !== newTarget.lat || routeTarget.lng !== newTarget.lng) {
+            console.log("Simulator: Target switched to", activeRide.status === 'ongoing' ? 'Dropoff' : 'Pickup');
+            setRouteTarget(newTarget);
+            setRouteCoords([]);
+            setCurrentRouteIndex(0);
+        }
+    }, [activeRide?.status, activeRide?._id, activeRide?.pickup, activeRide?.dropoff]);
+
+    useEffect(() => {
+        if (!socket?.connected) return;
+
+        const onRideCancelled = (data) => {
+            console.log("DriverDashboard: Ride cancelled:", data);
+            setActiveRide(null);
+            setRouteTarget(null);
+            setRouteCoords([]);
+            setCurrentRouteIndex(0);
+            alert(data.message || "The ride has been cancelled by the customer.");
+        };
+
+        socket.on("rideCancelled", onRideCancelled);
+        return () => {
+            socket.off("rideCancelled", onRideCancelled);
+        };
+    }, [socket, setActiveRide]);
+
+    // Sync isOnline with socket
+    useEffect(() => {
+        if (isOnline === null || !socket?.connected || !user?.id) return;
+
+        if (isOnline) {
+            console.log("Syncing: Driver going ONLINE");
+            socket.emit("driverOnline", { driverId: user.id });
+        } else {
+            console.log("Syncing: Driver going OFFLINE");
+            socket.emit("driverOffline", { driverId: user.id });
+        }
+    }, [isOnline, user?.id, socket]);
+
+    // --- Actions ---
+
+    const handleKycUpload = (e) => {
+        e.preventDefault();
+        setKycStatus("verifying");
+        setTimeout(() => {
+            setKycStatus("approved");
+            setShowKycModal(false);
+            alert("Documents uploaded successfully! Support will verify within 24 hours.");
+        }, 2000);
+    };
+
+    const handleStartTrip = async () => {
+        try {
+            const success = await updateStatus(activeRide._id, "ongoing");
+            if (success) {
+                toast.success("Operational protocol verified. Mission start.");
+            }
+        } catch (error) {
+            console.error("Trip start error:", error);
+        }
+    };
+
+
+    const handleCompleteTrip = async () => {
+        const success = await updateStatus(activeRide._id, "completed");
+        if (success) {
+            const earned = activeRide.fare * 0.8; // 20% Commission
+            setEarnings(prev => ({ ...prev, daily: prev.daily + earned }));
+            setWalletBalance(prev => prev + earned);
+            setTotalTrips(prev => prev + 1);
+            setLastEarnings(earned);
+            setShowSuccessCard(true);
+            fetchDailyMissions(); // Refresh the log
+        }
+    };
+
+    const requestPayout = () => {
+        if (walletBalance < 500) return alert("Minimum payout is ₹500");
+        alert(`Payout request for ₹${walletBalance} sent to your bank account.`);
+        setWalletBalance(0);
+    };
+
+    const handleAcceptRideAction = async (rideId) => {
+        if (isAccepting) return;
+        setIsAccepting(true);
+        try {
+            const success = await acceptRide(rideId);
+            if (!success) {
+                console.error("Failed to accept ride");
+            }
+        } finally {
+            setIsAccepting(false);
+        }
+    };
+
+    return (
+        <div className="dd-root">
+            {/* Cinematic background */}
+            <div className="dd-bg" />
+            <div className="dd-overlay-dark" />
+            <div className="dd-overlay-grad" />
+
+            {/* Fixed frosted-glass header */}
+            <header className="dd-header">
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                        <Car className="w-8 h-8 text-primary" />
+                        <h1 className="text-xl font-black text-white tracking-tight">DriveDash</h1>
+                    </div>
+                    {/* Driver Name Display */}
+                    <div className="hidden md:flex items-center gap-3 pl-6 border-l border-white/10">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-xs">
+                            {user?.name ? user.name[0].toUpperCase() : 'D'}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] leading-none mb-1">Welcome back</span>
+                            <span className="text-sm font-black text-white tracking-tight leading-none">{user?.name || 'Driver'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4">
+                    {/* KYC pill */}
+                    {kycStatus === "pending" && (
+                        <button
+                            onClick={() => setShowKycModal(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black uppercase tracking-widest rounded-full hover:bg-amber-400/30 transition-all"
+                        >
+                            <ShieldAlert className="w-3.5 h-3.5" /> Complete KYC
+                        </button>
+                    )}
+                    {/* Status + toggle */}
+                    <div className="flex items-center gap-3 bg-white/10 border border-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                        <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-500 ${isOnline ? 'bg-emerald-400 shadow-[0_0_8px_3px_rgba(52,211,153,0.6)] animate-pulse' : 'bg-gray-500'}`} />
+                        <span className={`text-sm font-black uppercase tracking-widest ${isOnline ? 'text-emerald-300' : 'text-gray-400'}`}>
+                            {isOnline ? 'Online' : 'Offline'}
+                        </span>
+                        <label className="switch">
+                            <input type="checkbox" checked={isOnline || false} onChange={() => setIsOnline(!isOnline)} disabled={isOnline === null} />
+                            <span className="slider round" />
+                        </label>
+                    </div>
+
+                    {/* Logout Button */}
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Are you sure you want to logout?")) {
+                                logout();
+                            }
+                        }}
+                        className="w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center hover:bg-red-500 hover:text-white text-red-400 transition-all duration-300 group shadow-lg shadow-red-500/10"
+                        title="Logout"
+                    >
+                        <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    </button>
+                </div>
+            </header>
+
+            {/* Stats strip */}
+            <div className="dd-stats-strip">
+                {[
+                    { label: "Today's Earnings", value: `₹${Math.round(earnings.daily)}`, icon: <Coins className="w-6 h-6" />, ref: earningsRef },
+                    { label: 'Rating', value: `★ ${rating}`, icon: <Star className="w-6 h-6" />, ref: feedbackRef },
+                    { label: 'Total Trips', value: totalTrips, icon: <Route className="w-6 h-6" />, ref: missionsRef },
+                    { label: 'Wallet', value: `₹${Math.round(walletBalance)}`, icon: <Wallet className="w-6 h-6" />, ref: walletRef },
+                ].map(s => (
+                    <button
+                        key={s.label}
+                        className="dd-stat-card group outline-none"
+                        onClick={() => scrollToSection(s.ref)}
+                    >
+                        <span className="text-primary mb-1 group-hover:scale-110 transition-transform duration-300">{s.icon}</span>
+                        <span className="text-[9px] font-black text-white/50 uppercase tracking-widest">{s.label}</span>
+                        <span className="text-2xl font-black text-white group-hover:text-amber-300 transition-colors duration-300">{s.value}</span>
+                    </button>
+                ))}
+            </div>
+
+            {/* Main layout */}
+            <main className="dd-main">
+
+                {/* Left col: Map + Active Trip */}
+                <div className="dd-left">
+
+                    {/* Map card with gradient border */}
+                    <div className="dd-map-border">
+                        <div className="dd-map-inner">
+                            <DriverMap
+                                currentLocation={location}
+                                pickupLocation={useMemo(() => (activeRide ? [activeRide.pickup.lat, activeRide.pickup.lng] : null), [activeRide?.pickup?.lat, activeRide?.pickup?.lng])}
+                                dropoffLocation={useMemo(() => (activeRide ? [activeRide.dropoff.lat, activeRide.dropoff.lng] : null), [activeRide?.dropoff?.lat, activeRide?.dropoff?.lng])}
+                                routeStart={useMemo(() => {
+                                    if (!activeRide) return null;
+                                    if (activeRide.status === 'ongoing' || activeRide.status === 'arrived') return [activeRide.pickup.lat, activeRide.pickup.lng];
+                                    return [location.lat, location.lng];
+                                }, [activeRide?.status, activeRide?.pickup?.lat, activeRide?.pickup?.lng])}
+                                routeEnd={useMemo(() => {
+                                    if (!activeRide) return null;
+                                    if (activeRide.status === 'ongoing') return [activeRide.dropoff.lat, activeRide.dropoff.lng];
+                                    return [activeRide.pickup.lat, activeRide.pickup.lng];
+                                }, [activeRide?.status, activeRide?.pickup?.lat, activeRide?.pickup?.lng, activeRide?.dropoff?.lat, activeRide?.dropoff?.lng])}
+                                searchCoords={searchCoords}
+                                onCoordinatesFound={setRouteCoords}
+                            />
+
+                            {/* Search overlay */}
+                            <div className="absolute top-4 left-4 right-4 z-[1001] pointer-events-none">
+                                <div className="max-w-md pointer-events-auto">
+                                    <LocationAutocomplete
+                                        placeholder="Search for a location..."
+                                        value={searchInput}
+                                        onChange={setSearchInput}
+                                        onSelect={(loc) => { setSearchCoords([loc.lat, loc.lng]); setSearchInput(loc.address); }}
+                                        icon={Search}
+                                        className="shadow-2xl"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Offline overlay */}
+                            {!isOnline && (
+                                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-[1000] flex flex-col items-center justify-center text-white text-center p-6">
+                                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-5 border border-white/20 text-white/40">
+                                        <ShieldAlert className="w-10 h-10" />
+                                    </div>
+                                    <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">You are Offline</h3>
+                                    <p className="text-white/70 font-semibold">Go online to receive ride requests</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Active Trip Panel */}
+                    {activeRide && (
+                        <div className="dd-glass-card animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-amber-400/20 rounded-2xl flex items-center justify-center text-2xl border border-amber-400/30 text-amber-500 font-black">
+                                        {activeRide.customer?.name ? activeRide.customer.name[0].toUpperCase() : 'C'}
+                                    </div>
+                                    <div>
+                                        <strong className="text-lg block font-black text-gray-900 leading-tight">{activeRide.customer?.name || 'Customer'}</strong>
+                                        <p className="text-sm font-semibold text-gray-500 flex items-center gap-1.5 mt-0.5">
+                                            <span className={`w-2 h-2 rounded-full ${activeRide.status === 'ongoing' ? 'bg-red-500' : 'bg-emerald-500'}`} />
+                                            {['driver_assigned', 'arriving', 'arrived'].includes(activeRide.status) ? 'Pickup' : 'Drop'}: {activeRide.status === 'ongoing' ? activeRide.dropoff.address : activeRide.pickup.address}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span className="self-start px-4 py-1.5 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200">
+                                    {activeRide.status === 'searching' ? 'Search' :
+                                        activeRide.status === 'driver_assigned' ? 'Booked' :
+                                            activeRide.status === 'arriving' ? 'Coming' :
+                                                activeRide.status === 'arrived' ? 'Here' :
+                                                    activeRide.status === 'ongoing' ? 'Start' :
+                                                        activeRide.status === 'completed' ? 'Done' : activeRide.status}
+                                </span>
+                            </div>
+
+                            {activeRide.status === 'arrived' && (
+                                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 font-bold text-center text-sm flex items-center justify-center gap-2">
+                                    <CheckCircle className="w-4 h-4" /> Arrived at pickup point.
+                                </div>
+                            )}
+
+                            {activeRide.status === 'ongoing' && (
+                                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-bold text-center text-sm flex items-center justify-center gap-2">
+                                    <Route className="w-4 h-4" />
+                                    {Math.sqrt(Math.pow(location.lat - activeRide.dropoff.lat, 2) + Math.pow(location.lng - activeRide.dropoff.lng, 2)) < 0.0005
+                                        ? "Destination Reached!"
+                                        : "Heading to destination..."}
+                                </div>
+                            )}
+
+                            <div className="mb-4 flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
+                                <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Fare</span>
+                                <span className="text-xl font-black text-gray-900">₹{activeRide.fare}</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <button className="py-4 rounded-xl bg-gray-100 text-gray-800 font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-all">
+                                    <Phone className="w-4 h-4" /> Call
+                                </button>
+                                {activeRide.status === 'driver_assigned' && (
+                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arriving")}>
+                                        <Navigation className="w-4 h-4" /> Coming
+                                    </button>
+                                )}
+                                {activeRide.status === 'arriving' && (
+                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 shadow-lg shadow-indigo-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arrived")}>
+                                        <MapPin className="w-4 h-4" /> Here
+                                    </button>
+                                )}
+                                {activeRide.status === 'arrived' && (
+                                    <button className="py-4 rounded-xl font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-400/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={handleStartTrip}>
+                                        <Play className="w-4 h-4" /> Start
+                                    </button>
+                                )}
+                                {activeRide.status === 'ongoing' && (
+                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg shadow-emerald-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={handleCompleteTrip}>
+                                        <CheckCircle className="w-4 h-4" /> Done
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Daily Missions Log */}
+                    <div ref={missionsRef} className="dd-glass-card hover:scale-[1.005] transition-all duration-300">
+                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                            <div>
+                                <h3 className="text-[12px] font-black text-gray-900 uppercase tracking-widest leading-none mb-1">Daily Mission Log</h3>
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Operational Shift Records</p>
+                            </div>
+                            <div className="bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 flex items-center gap-2">
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                                <span className="text-[10px] font-black text-emerald-700 uppercase">{dailyMissions.length} SUCCESS</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {dailyMissions.length === 0 ? (
+                                <div className="text-center py-10">
+                                    <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-gray-100">
+                                        <Route className="w-6 h-6 text-gray-300" />
+                                    </div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No missions logged today</p>
+                                </div>
+                            ) : (
+                                dailyMissions.map((mission, idx) => (
+                                    <div key={mission._id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-amber-200 hover:bg-amber-50/30 transition-all duration-300 animate-in slide-in-from-left-4 fade-in" style={{ animationDelay: `${idx * 100}ms` }}>
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-lg bg-white border border-gray-100 flex items-center justify-center font-black text-xs text-gray-400">
+                                                    #{dailyMissions.length - idx}
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Status</p>
+                                                    <p className="text-[11px] font-black text-emerald-600 uppercase">Mission Success</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Earnings</p>
+                                                <p className="text-[13px] font-black text-gray-900">₹{(mission.fare * 0.8).toFixed(0)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2 relative pl-4 before:absolute before:left-1 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                                            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                                                <span className="truncate">{mission.pickup.address}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                                                <span className="truncate">{mission.dropoff.address}</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <span className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                                    <Clock className="w-3 h-3" /> {new Date(mission.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                                <span className="flex items-center gap-1 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                                    <Route className="w-3 h-3" /> {mission.distance}
+                                                </span>
+                                            </div>
+                                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">{mission.cabType}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right sidebar */}
+                <div className="dd-right">
+
+                    {/* Wallet */}
+                    <div ref={walletRef} className="dd-glass-card text-center hover:scale-[1.02] transition-all duration-300 group">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">My Wallet</p>
+                        <div className="text-5xl font-black mb-5 bg-gradient-to-br from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                            ₹{Math.round(walletBalance)}
+                        </div>
+                        <button
+                            className="w-full py-4 rounded-2xl font-black text-gray-900 text-sm bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 shadow-lg shadow-amber-300/40 hover:shadow-amber-400/60 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2"
+                            onClick={requestPayout}
+                        >
+                            <Coins className="w-4 h-4" /> Request Payout (₹{Math.round(walletBalance)})
+                        </button>
+                    </div>
+
+                    {/* Earnings */}
+                    <div ref={earningsRef} className="dd-glass-card hover:scale-[1.02] transition-all duration-300">
+                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4 pb-4 border-b border-gray-100">Earnings Overview</h3>
+                        {[
+                            { label: 'Today', value: earnings.daily, icon: <TrendingUp className="w-4 h-4 text-emerald-500" /> },
+                            { label: 'This Week', value: earnings.weekly, icon: <Clock className="w-4 h-4 text-amber-500" /> },
+                            { label: 'This Month', value: earnings.monthly, icon: <Wallet className="w-4 h-4 text-blue-500" /> },
+                        ].map((item, i) => (
+                            <div key={item.label} className={`flex items-center justify-between py-3.5 ${i < 2 ? 'border-b border-gray-50' : ''}`}>
+                                <div className="flex items-center gap-2">
+                                    {item.icon}
+                                    <span className="text-sm font-semibold text-gray-600">{item.label}</span>
+                                </div>
+                                <strong className="text-lg font-black text-gray-900">₹{Math.round(item.value)}</strong>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Feedback */}
+                    <div ref={feedbackRef} className="dd-glass-card hover:scale-[1.02] transition-all duration-300">
+                        <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4 pb-4 border-b border-gray-100">Recent Feedback</h3>
+                        {[
+                            { stars: 5, text: '"Very polite driver, car was clean."', time: 'Yesterday' },
+                            { stars: 4, text: '"On time and safe driving."', time: '2 days ago' },
+                        ].map((fb, i) => (
+                            <div key={i} className={`${i > 0 ? 'pt-4 border-t border-gray-50 mt-4' : ''}`}>
+                                <div className="flex gap-0.5 mb-1.5">
+                                    {[...Array(5)].map((_, s) => (
+                                        <Star key={s} className={`w-3.5 h-3.5 ${s < fb.stars ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'}`} />
+                                    ))}
+                                </div>
+                                <p className="text-sm font-semibold text-gray-700 leading-relaxed">{fb.text}</p>
+                                <small className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{fb.time}</small>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </main>
+
+            {/* Incoming Request Modal */}
+            {newRequest && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[5000] flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Incoming</p>
+                                <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-none">New Ride!</h2>
+                            </div>
+                            <div className="relative w-14 h-14 flex items-center justify-center">
+                                <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
+                                    <circle r="20" cx="24" cy="24" className="stroke-red-100 fill-none" strokeWidth="4" />
+                                    <circle r="20" cx="24" cy="24" className="stroke-red-500 fill-none" strokeWidth="4"
+                                        style={{ strokeDasharray: '125.6', strokeDashoffset: `${125.6 - (timer / 15) * 125.6}`, transition: 'stroke-dashoffset 1s linear' }} />
+                                </svg>
+                                <span className="text-lg font-black text-red-500 relative z-10">{timer}</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3 mb-6">
+                            <div className="flex items-start gap-3 bg-green-50 p-4 rounded-2xl border border-green-100">
+                                <span className="w-2.5 h-2.5 mt-1 rounded-full bg-green-500 flex-shrink-0" />
+                                <span className="font-bold text-gray-800 text-sm leading-snug">{newRequest.pickup.address}</span>
+                            </div>
+                            <div className="flex items-start gap-3 bg-red-50 p-4 rounded-2xl border border-red-100">
+                                <span className="w-2.5 h-2.5 mt-1 rounded-full bg-red-500 flex-shrink-0" />
+                                <span className="font-bold text-gray-800 text-sm leading-snug">{newRequest.dropoff.address}</span>
+                            </div>
+                            <div className="flex gap-3 pt-1">
+                                <span className="text-sm font-black text-gray-700 bg-gray-100 px-4 py-2 rounded-full flex items-center gap-2"><Route className="w-3.5 h-3.5" /> {newRequest.distance}</span>
+                                <span className="text-sm font-black text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 flex items-center gap-2"><Coins className="w-3.5 h-3.5" /> ₹{newRequest.fare}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button className="flex-1 py-5 bg-gray-100 text-gray-700 font-black rounded-2xl hover:bg-red-50 hover:text-red-700 active:scale-95 transition-all" onClick={() => setNewRequest(null)}>Decline</button>
+                            <button
+                                className={`flex-[2] py-5 font-black rounded-2xl shadow-xl transition-all text-base flex items-center justify-center gap-2
+                                    ${isAccepting ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 hover:from-yellow-500 hover:to-orange-600 shadow-amber-300/40 hover:scale-[1.02] active:scale-95'}`}
+                                onClick={() => handleAcceptRideAction(newRequest.rideId || newRequest._id)}
+                                disabled={isAccepting}
+                            >
+                                {isAccepting ? (<><div className="w-5 h-5 border-4 border-gray-400/30 border-t-gray-600 rounded-full animate-spin" />Accepting...</>) : <><Check className="w-4 h-4" /> Accept Ride</>}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* KYC Modal */}
+            {showKycModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[6000] flex items-center justify-center p-4">
+                    <div className="bg-white p-10 rounded-[35px] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
+                        <h2 className="text-3xl font-black mb-2 tracking-tight">Driver Onboarding</h2>
+                        <p className="text-gray-400 font-medium mb-8 text-sm">Upload documents to verify your account.</p>
+                        <form onSubmit={handleKycUpload} className="space-y-5">
+                            {['Driving License', 'Vehicle Insurance', 'Aadhar / Identity Card'].map((label) => (
+                                <div key={label}>
+                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">{label}</label>
+                                    <input type="file" required className="w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-2xl focus:border-amber-400 transition-all outline-none cursor-pointer text-sm text-gray-500" />
+                                </div>
+                            ))}
+                            <div className="flex justify-end gap-4 mt-8">
+                                <button type="button" className="font-black text-gray-400 px-6 py-2 hover:text-gray-600 transition-colors" onClick={() => setShowKycModal(false)}>Cancel</button>
+                                <button type="submit" className="font-black px-8 py-3 rounded-2xl text-gray-900 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 shadow-md shadow-amber-300/30 transition-all hover:scale-[1.02] active:scale-95">
+                                    Submit for Verification
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Trip Success Modal */}
+            {showSuccessCard && (
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[7000] flex items-center justify-center p-4 overflow-hidden">
+                    {/* Animated background particles effect would go here */}
+                    <div className="bg-gradient-to-br from-gray-900 to-black w-full max-w-md rounded-[50px] p-12 text-center border border-white/10 shadow-[0_0_100px_rgba(251,191,36,0.15)] animate-in zoom-in-95 duration-500 relative">
+                        <div className="absolute -top-12 left-1/2 -translate-x-1/2">
+                            <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(251,191,36,0.5)] border-4 border-black animate-bounce">
+                                <Trophy className="w-12 h-12 text-black" />
+                            </div>
+                        </div>
+
+                        <div className="mt-8 space-y-2 mb-10">
+                            <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Mission Victory!</h2>
+                            <p className="text-amber-400/60 font-black text-[10px] uppercase tracking-[0.3em]">Operational Protocol Success</p>
+                        </div>
+
+                        <div className="bg-white/5 rounded-[35px] border border-white/10 p-10 mb-10 relative group overflow-hidden">
+                            <div className="absolute inset-0 bg-yellow-400/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
+                            <div className="relative z-10">
+                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">Net Earnings</p>
+                                <div className="text-6xl font-black text-white tracking-tighter mb-2">₹{lastEarnings.toFixed(0)}</div>
+                                <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs">
+                                    <CheckCircle className="w-3.5 h-3.5" /> Settled to Wallet
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <button
+                                onClick={() => setShowSuccessCard(false)}
+                                className="w-full py-6 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-black text-base rounded-3xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all uppercase tracking-widest"
+                            >
+                                Back to Base
+                            </button>
+                            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Awaiting next deployment...</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            <style>{`
+                /* BG image */
+                .dd-root { position: relative; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+                .dd-bg { position: fixed; inset: 0; z-index: 0; background: url('/driver-dashboard-bg.jpg') center/cover no-repeat; }
+                .dd-overlay-dark { position: fixed; inset: 0; z-index: 1; background: rgba(0,0,0,0.72); }
+                .dd-overlay-grad { position: fixed; inset: 0; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.60) 100%); }
+
+                /* Header */
+                .dd-header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; background: rgba(0,0,0,0.55); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.10); }
+
+                /* Stats strip */
+                .dd-stats-strip { position: relative; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.08); }
+                @media (max-width: 768px) { .dd-stats-strip { grid-template-columns: repeat(2, 1fr); } }
+                .dd-stat-card { display: flex; flex-direction: column; align-items: center; padding: 18px 12px; background: rgba(0,0,0,0.30); backdrop-filter: blur(10px); transition: all 0.3s; cursor: default; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+                .dd-stat-card:hover { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.25); }
+
+                /* Main layout */
+                .dd-main { position: relative; z-index: 10; display: grid; grid-template-columns: 1fr; gap: 20px; padding: 24px 24px 40px; }
+                @media (min-width: 1024px) { .dd-main { grid-template-columns: 1fr 360px; } }
+                .dd-left { display: flex; flex-direction: column; gap: 20px; }
+                .dd-right { display: flex; flex-direction: column; gap: 20px; }
+
+                /* Map with gradient border */
+                .dd-map-border { padding: 3px; border-radius: 24px; background: linear-gradient(135deg, #fbbf24, #f59e0b, #f97316); box-shadow: 0 8px 40px rgba(251,191,36,0.30); transition: box-shadow 0.4s, transform 0.4s; }
+                .dd-map-border:hover { box-shadow: 0 12px 55px rgba(251,191,36,0.45); transform: scale(1.003); }
+                .dd-map-inner { position: relative; height: 500px; border-radius: 21px; overflow: hidden; background: #1a1a2e; }
+                @media (max-width: 1024px) { .dd-map-inner { height: 360px; } }
+                @media (max-width: 768px) { .dd-map-inner { height: 260px; } }
+
+                /* Glassmorphism card — all sidebar + active trip panels */
+                .dd-glass-card { background: rgba(255,255,255,0.96); backdrop-filter: blur(24px); padding: 28px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.8), 0 0 0 1px rgba(251,191,36,0.15); }
+
+                /* Toggle Switch */
+                .switch { position: relative; display: inline-block; width: 54px; height: 28px; }
+                .switch input { opacity: 0; width: 0; height: 0; }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .4s cubic-bezier(0.4,0,0.2,1); border-radius: 34px; border: 1px solid rgba(255,255,255,0.15); }
+                .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.4,0,0.2,1); border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+                input:checked + .slider { background: linear-gradient(135deg, #34d399, #10b981); box-shadow: 0 0 16px rgba(16,185,129,0.5); border-color: transparent; }
+                input:checked + .slider:before { transform: translateX(26px); }
+
+                /* Fade-in */
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fadeIn { animation: fadeIn 0.5s ease-out both; }
+
+                @keyframes pulseSubtle {
+                    0% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
+                    50% { box-shadow: 0 0 0 4px rgba(251,191,36,0.2); }
+                    100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
+                }
+                .animate-pulse-subtle { animation: pulseSubtle 1s ease-in-out infinite; }
+            `}</style>
+        </div>
+    );
+}
+
+export default DriverDashboard;

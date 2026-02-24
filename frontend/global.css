@@ -1,0 +1,202 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  /**
+   * Tailwind CSS theme - RideHub Cab Booking (Ridek Template Design)
+   * Template Colors: Orange #ff9900, Dark #222222, Grey #666666
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    /* Template Brand Colors */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
+
+    /* Primary: Bright Orange (#ff9900) */
+    --primary: 39 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Dark Charcoal (#222222) */
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Grey colors from template */
+    --muted: 0 0% 40%;
+    --muted-foreground: 0 0% 72%;
+
+    /* Accent: Light Grey (#b8b8b8) */
+    --accent: 0 0% 72%;
+    --accent-foreground: 0 0% 13%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 0 0% 93%;
+    --input: 0 0% 96%;
+    --ring: 39 100% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 244 11% 97%;
+    --sidebar-foreground: 0 0% 13%;
+    --sidebar-primary: 39 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 72%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 93%;
+    --sidebar-ring: 39 100% 50%;
+  }
+
+  .dark {
+    --background: 0 0% 13%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 18%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 18%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 39 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 0 0% 13%;
+
+    --muted: 0 0% 60%;
+    --muted-foreground: 0 0% 86%;
+
+    --accent: 0 0% 72%;
+    --accent-foreground: 0 0% 13%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 39 100% 50%;
+    --sidebar-background: 0 0% 13%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 39 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 72%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 39 100% 50%;
+  }
+}
+
+@layer utilities {
+  .rh-root {
+    position: relative;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    background: #0a0a0a;
+  }
+
+  .rh-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+  }
+
+  .rh-glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .map-container-responsive {
+    height: 600px;
+    width: 100%;
+  }
+
+  .animate-plus-pulse {
+    animation: plus-pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-slow {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: scale(1.15);
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
+
+  /* GPS Tracking Marker Transition */
+  .custom-admin-car-marker {
+    transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Custom Premium Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(245, 158, 11, 0.2);
+    border-radius: 10px;
+    transition: all 0.3s;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 158, 11, 0.5);
+  }
+
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 158, 11, 0.2) rgba(255, 255, 255, 0.02);
+  }
+
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre,
+  code {
+    overflow-x: auto;
+    white-space: pre;
+  }
+}

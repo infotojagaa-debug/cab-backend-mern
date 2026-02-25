@@ -321,6 +321,7 @@ export default function Home() {
   const [mapSearchInput, setMapSearchInput] = useState("");
   const [viewCoords, setViewCoords] = useState(null);
   const [isOtpRequested, setIsOtpRequested] = useState(false);
+  const [redoStack, setRedoStack] = useState([]);
 
   // Tracking specifics
   const [eta, setEta] = useState(null);
@@ -550,10 +551,12 @@ export default function Home() {
       setPickupCoords([latlng.lat, latlng.lng]);
       setPickupInput(address);
       setSelectionMode('dropoff');
+      setRedoStack([]);
     } else if (selectionMode === 'dropoff') {
       setDropoffCoords([latlng.lat, latlng.lng]);
       setDropoffInput(address);
       setSelectionMode('done');
+      setRedoStack([]);
     }
   };
 
@@ -570,13 +573,30 @@ export default function Home() {
   const handleUndo = () => {
     if (rideStatus !== 'idle') return;
     if (selectionMode === 'done') {
+      setRedoStack(prev => [{ mode: 'done', coords: dropoffCoords, input: dropoffInput }, ...prev]);
       setDropoffCoords(null); setDropoffInput("");
       setRouteSummary(null); setSelectionMode('dropoff');
     } else if (selectionMode === 'dropoff') {
+      setRedoStack(prev => [{ mode: 'dropoff', coords: pickupCoords, input: pickupInput }, ...prev]);
       setPickupCoords(null); setPickupInput("");
       setSelectionMode('pickup');
       setStableEndpoints({ p: null, d: null });
     }
+  };
+
+  const handleRedo = () => {
+    if (rideStatus !== 'idle' || redoStack.length === 0) return;
+    const [next, ...rest] = redoStack;
+    if (next.mode === 'done') {
+      setDropoffCoords(next.coords);
+      setDropoffInput(next.input);
+      setSelectionMode('done');
+    } else if (next.mode === 'dropoff') {
+      setPickupCoords(next.coords);
+      setPickupInput(next.input);
+      setSelectionMode('dropoff');
+    }
+    setRedoStack(rest);
   };
 
 
@@ -733,9 +753,14 @@ export default function Home() {
                     {(pickupCoords || dropoffCoords) && rideStatus === 'idle' && (
                       <button onClick={handleReset} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Reset System</button>
                     )}
-                    {(pickupCoords && rideStatus === 'idle') && (
-                      <button onClick={handleUndo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Previous Step</button>
-                    )}
+                    <div className="flex gap-3">
+                      {(pickupCoords && rideStatus === 'idle') && (
+                        <button onClick={handleUndo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Previous Step</button>
+                      )}
+                      {(redoStack.length > 0 && rideStatus === 'idle') && (
+                        <button onClick={handleRedo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Next Step</button>
+                      )}
+                    </div>
                   </div>
                   <div className="w-full h-full relative z-0">
                     <MapContainer center={mapCenter} zoom={12} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>

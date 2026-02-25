@@ -173,7 +173,7 @@ export default function LocationAutocomplete({
                     onFocus={() => setIsOpen(true)}
                     onKeyDown={handleKeyDown}
                     placeholder={placeholder}
-                    className="pl-12 py-6 rounded-2xl border-gray-100 focus:border-primary/20 bg-gray-50/50 focus:bg-white transition-all font-semibold"
+                    className="pl-12 py-6 rounded-2xl border-gray-100 focus:border-primary/20 bg-gray-50/50 focus:bg-white transition-all font-semibold text-gray-900"
                 />
             </div>
 

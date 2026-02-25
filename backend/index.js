@@ -69,6 +69,11 @@ export function createServer() {
   app.use("/api/notifications", notificationRoutes);
 
   // Catch-all 404 for any unhandled /api requests to prevent Vite HTML fallback
+
+  app.get("/", (req, res) => {
+    res.send("Cab backend api is running")
+  });
+  
   app.use("/api/*", (req, res) => {
     res.status(404).json({ error: `API route not found: ${req.originalUrl}` });
   });
@@ -78,9 +83,7 @@ export function createServer() {
     app.set('io', io);
   };
 
-  app.get("/", (req, res) => {
-    res.send("Cab backend api is running")
-  });
+  
 
   return app;
 }

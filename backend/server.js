@@ -2,6 +2,7 @@ import path from "path";
 import { createServer } from "./index.js";
 import { setupSocket } from "./socket.js";
 import { Ride } from "./models/Ride.js";
+import { DriverProfile } from "./models/DriverProfile.js";
 import { connectDB } from "./db.js";
 import mongoose from "mongoose";
 

@@ -73,7 +73,7 @@ export function createServer() {
   app.get("/", (req, res) => {
     res.send("Cab backend api is running")
   });
-  
+
   app.use("/api/*", (req, res) => {
     res.status(404).json({ error: `API route not found: ${req.originalUrl}` });
   });
@@ -82,8 +82,6 @@ export function createServer() {
   app.setSocketIO = (io) => {
     app.set('io', io);
   };
-
-  
 
   return app;
 }

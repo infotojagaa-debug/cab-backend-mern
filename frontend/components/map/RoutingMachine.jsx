@@ -84,7 +84,7 @@ const RoutingMachine = ({ pickup, dropoff, onRouteFound, onCoordinatesFound }) =
                 }
             }
         };
-    }, [map, pickup, dropoff]);
+    }, [pickup[0], pickup[1], dropoff[0], dropoff[1], map]);
 
     return null;
 };

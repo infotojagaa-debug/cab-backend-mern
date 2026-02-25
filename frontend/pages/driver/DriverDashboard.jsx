@@ -48,6 +48,7 @@ function DriverDashboard() {
     const [routeCoords, setRouteCoords] = useState([]);
     const [currentRouteIndex, setCurrentRouteIndex] = useState(0);
     const [routeTarget, setRouteTarget] = useState(null); // pickup or dropoff
+    const [stableEndpoints, setStableEndpoints] = useState({ start: null, end: null });
 
     // --- Effects ---
 
@@ -223,20 +224,33 @@ function DriverDashboard() {
             setRouteTarget(null);
             setRouteCoords([]);
             setCurrentRouteIndex(0);
+            setStableEndpoints({ start: null, end: null });
             return;
         }
 
-        // Determine current target based on status
         const newTarget = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
 
-        // If target switched, reset route and index
         if (!routeTarget || routeTarget.lat !== newTarget.lat || routeTarget.lng !== newTarget.lng) {
             console.log("Simulator: Target switched to", activeRide.status === 'ongoing' ? 'Dropoff' : 'Pickup');
             setRouteTarget(newTarget);
             setRouteCoords([]);
             setCurrentRouteIndex(0);
+
+            // Set stable endpoints for the Route line (RoutingMachine)
+            // This prevents the line from re-initializing every time the driver moves
+            if (activeRide.status === 'ongoing') {
+                setStableEndpoints({
+                    start: [activeRide.pickup.lat, activeRide.pickup.lng],
+                    end: [activeRide.dropoff.lat, activeRide.dropoff.lng]
+                });
+            } else {
+                setStableEndpoints({
+                    start: [locationRef.current.lat, locationRef.current.lng],
+                    end: [activeRide.pickup.lat, activeRide.pickup.lng]
+                });
+            }
         }
-    }, [activeRide?.status, activeRide?._id, activeRide?.pickup, activeRide?.dropoff]);
+    }, [activeRide?.status, activeRide?._id]);
 
     useEffect(() => {
         if (!socket?.connected) return;
@@ -420,16 +434,8 @@ function DriverDashboard() {
                                 currentLocation={location}
                                 pickupLocation={useMemo(() => (activeRide ? [activeRide.pickup.lat, activeRide.pickup.lng] : null), [activeRide?.pickup?.lat, activeRide?.pickup?.lng])}
                                 dropoffLocation={useMemo(() => (activeRide ? [activeRide.dropoff.lat, activeRide.dropoff.lng] : null), [activeRide?.dropoff?.lat, activeRide?.dropoff?.lng])}
-                                routeStart={useMemo(() => {
-                                    if (!activeRide) return null;
-                                    if (activeRide.status === 'ongoing' || activeRide.status === 'arrived') return [activeRide.pickup.lat, activeRide.pickup.lng];
-                                    return [location.lat, location.lng];
-                                }, [activeRide?.status, activeRide?.pickup?.lat, activeRide?.pickup?.lng])}
-                                routeEnd={useMemo(() => {
-                                    if (!activeRide) return null;
-                                    if (activeRide.status === 'ongoing') return [activeRide.dropoff.lat, activeRide.dropoff.lng];
-                                    return [activeRide.pickup.lat, activeRide.pickup.lng];
-                                }, [activeRide?.status, activeRide?.pickup?.lat, activeRide?.pickup?.lng, activeRide?.dropoff?.lat, activeRide?.dropoff?.lng])}
+                                routeStart={stableEndpoints.start}
+                                routeEnd={stableEndpoints.end}
                                 searchCoords={searchCoords}
                                 onCoordinatesFound={setRouteCoords}
                             />

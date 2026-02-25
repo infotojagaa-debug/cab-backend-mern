@@ -670,7 +670,7 @@ export default function Home() {
 
       <div className="relative z-10 min-h-screen">
         {/* Cinematic Header */}
-        <div className="border-b border-white/10 bg-black/40 backdrop-blur-2xl sticky top-0 z-[1000] shadow-2xl">
+        <div className="border-b border-white/10 bg-black/40 backdrop-blur-lg sticky top-0 z-[1000] shadow-2xl">
           <div className="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate("/")}>
               <div className="bg-primary p-2.5 rounded-2xl shadow-[0_0_20px_rgba(255,153,0,0.4)] group-hover:scale-110 transition-transform duration-300">
@@ -708,7 +708,7 @@ export default function Home() {
         <div className="max-w-[1400px] mx-auto px-6 py-4 pb-40">
           {/* Cinematic Search Hub */}
           <div className="mb-6 relative z-[2000]">
-            <div className="max-w-3xl mx-auto px-4 py-8 rounded-[40px] bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl">
+            <div className="max-w-3xl mx-auto px-4 py-8 rounded-[40px] bg-white/5 border-white/10 backdrop-blur-lg shadow-2xl">
               <h2 className="text-center text-white/40 text-[10px] font-black uppercase tracking-[0.3em] mb-6">Explore your journey</h2>
               <LocationAutocomplete
                 placeholder="Where would you like to go?"
@@ -719,7 +719,7 @@ export default function Home() {
                   setMapSearchInput(loc.address);
                 }}
                 icon={Search}
-                className="h-16 [&_input]:h-16 [&_input]:text-lg [&_input]:font-black [&_input]:rounded-[2rem] [&_input]:border-none [&_input]:bg-white/10 [&_input]:text-white [&_input]:placeholder:text-white/30 focus-within:[&_input]:bg-white/20 focus-within:[&_input]:ring-8 focus-within:[&_input]:ring-primary/20 hover:[&_input]:bg-white/15 transition-all duration-500 shadow-inner"
+                className="h-16 [&_input]:h-16 [&_input]:text-lg [&_input]:font-black [&_input]:rounded-[2rem] [&_input]:border-none [&_input]:bg-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/30 focus-within:[&_input]:bg-white/20 focus-within:[&_input]:ring-8 focus-within:[&_input]:ring-primary/20 hover:[&_input]:bg-white/15 transition-all duration-500 shadow-inner"
               />
             </div>
           </div>
@@ -730,7 +730,7 @@ export default function Home() {
               <div className="relative p-1.5 rounded-[42px] bg-gradient-to-br from-primary via-orange-500 to-amber-600 shadow-[0_20px_60px_rgba(255,153,0,0.25)] transition-all duration-700 hover:shadow-[0_30px_80px_rgba(255,153,0,0.35)]">
                 <div className="relative map-container-responsive overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
                   {rideStatus !== "idle" && (
-                    <div className="absolute top-8 left-8 z-[600] bg-black/60 backdrop-blur-2xl border border-white/20 px-8 py-4 rounded-3xl shadow-2xl flex flex-col gap-1 min-w-[240px] animate-in slide-in-from-top-4 duration-500">
+                    <div className="absolute top-8 left-8 z-[600] bg-black/60 backdrop-blur-lg border border-white/20 px-8 py-4 rounded-3xl shadow-2xl flex flex-col gap-1 min-w-[240px] animate-in slide-in-from-top-4 duration-500">
                       <div className="flex items-center gap-4">
                         <div className={`w-3 h-3 rounded-full ${rideStatus === 'completed' ? 'bg-green-500 animate-pulse' : 'bg-primary animate-ping'}`} />
                         <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white">
@@ -814,7 +814,7 @@ export default function Home() {
             </div>
 
             <div className="lg:col-span-1 space-y-6">
-              <div className="bg-black/60 backdrop-blur-3xl rounded-[40px] shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10 p-8 space-y-8 animate-in slide-in-from-right-8 duration-700">
+              <div className="bg-black/60 backdrop-blur-lg rounded-[40px] shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10 p-8 space-y-8 animate-in slide-in-from-right-8 duration-700">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">Prepare</h2>
                   <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Initiate transit protocol</p>
@@ -833,7 +833,7 @@ export default function Home() {
                         setSelectionMode('dropoff');
                         setRouteSummary(null);
                       }}
-                      className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
+                      className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
                     />
                   </div>
                   <div>
@@ -848,7 +848,7 @@ export default function Home() {
                         setSelectionMode('done');
                         setRouteSummary(null);
                       }}
-                      className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
+                      className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
                     />
                   </div>
                 </div>
@@ -923,7 +923,7 @@ export default function Home() {
 
                     {currentRide?.driver && (
                       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
-                        <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6 backdrop-blur-xl">
+                        <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6 backdrop-blur-lg">
                           <div className="flex items-center gap-6">
                             <div className="w-18 h-18 bg-white/10 rounded-3xl flex items-center justify-center shadow-2xl text-3xl relative border border-white/10">
                               👤
@@ -971,7 +971,7 @@ export default function Home() {
         </div>
 
         {rideStatus === "completed" && (
-          <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-6 backdrop-blur-2xl">
+          <div className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-6 backdrop-blur-lg">
             <div className="bg-gradient-to-br from-gray-900 to-black rounded-[4rem] p-12 max-w-md w-full text-center space-y-8 border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,1)]">
               <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto border border-primary/30 shadow-[0_0_40px_rgba(255,153,0,0.2)]">
                 <Car className="w-12 h-12 text-primary animate-bounce" />

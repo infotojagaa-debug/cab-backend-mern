@@ -37,9 +37,9 @@ const cancelStaleRides = async () => {
     }
 };
 
-const server = app.listen(port, async () => {
-    console.log(`🚀 Server running on port ${port}`);
-    console.log(`🔧 API available at http://localhost:${port}/api`);
+const server = app.listen(port, "0.0.0.0", async () => {
+    console.log(`🚀 Server running on https://cab-backend-mern.onrender.com`);
+    console.log(`🔧 API available at: https://cab-backend-mern.onrender.com/api`);
     await cancelStaleRides();
 });
 

@@ -28,9 +28,22 @@ export function createServer() {
   app.set('db_connected', mongoose.connection.readyState === 1);
 
   // Middleware
-  const corsOrigin = process.env.CORS_ORIGIN || "*";
+  const allowedOrigins = [
+    "https://cab-backend-mern.vercel.app",
+    "https://cab-backend-mern.onrender.com",
+    process.env.CORS_ORIGIN
+  ].filter(Boolean);
+
   app.use(cors({
-    origin: corsOrigin,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Fallback to allow during transition, but restricted origins are safer
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
   }));

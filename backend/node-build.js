@@ -45,8 +45,8 @@ import { setupSocket } from "./socket";
 
 const server = app.listen(port, async () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
-  console.log(`📱 Frontend: http://localhost:${port}`);
-  console.log(`🔧 API: http://localhost:${port}/api`);
+  console.log(`📱 Frontend: https://cab-backend-mern.onrender.com`);
+  console.log(`🔧 API: https://cab-backend-mern.onrender.com/api`);
   await cancelStaleRides(); // Cancel stale rides after DB connection is ready
 });
 

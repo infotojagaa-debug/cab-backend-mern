@@ -48,7 +48,7 @@ export default function RoleLogin() {
     };
 
     return (
-        <div className="grid grid-cols-1 gap-3 w-full max-w-sm animate-in slide-in-from-right-12 duration-700">
+        <div className="grid grid-cols-1 gap-2 sm:gap-3 w-full max-w-[300px] sm:max-w-sm animate-in slide-in-from-right-12 duration-700">
 
             {/* Header */}
             <div className="relative overflow-hidden bg-black/60 backdrop-blur-xl rounded-2xl px-6 py-3 border border-amber-500/50 shadow-lg shadow-amber-500/10 mb-1">

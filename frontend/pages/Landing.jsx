@@ -374,7 +374,7 @@ export default function Landing() {
       )
 
       /* Hero Section */
-      , React.createElement('div', { className: "relative bg-secondary overflow-hidden h-[600px]" }
+      , React.createElement('div', { className: "relative bg-secondary overflow-hidden min-h-[700px] md:h-[600px] flex flex-col justify-center" }
         /* Background Slider */
         , React.createElement('div', { className: "absolute inset-0" }
           , React.createElement('div', { className: "absolute inset-0 bg-black/60 z-10" })
@@ -389,10 +389,10 @@ export default function Landing() {
             , React.createElement('div', { className: "inline-block bg-primary text-secondary px-4 py-1 rounded font-bold text-sm mb-6" }
               , slides[currentSlide].subtitle
             )
-            , React.createElement('h1', { className: "text-5xl md:text-7xl font-bold mb-6 leading-tight" }
+            , React.createElement('h1', { className: "text-4xl md:text-7xl font-bold mb-6 leading-tight" }
               , slides[currentSlide].title
             )
-            , React.createElement('p', { className: "text-lg text-white/80 mb-8 max-w-lg leading-relaxed" }
+            , React.createElement('p', { className: "text-base md:text-lg text-white/80 mb-8 max-w-lg leading-relaxed" }
               , slides[currentSlide].description
             )
             , React.createElement('div', { className: "flex gap-4" }
@@ -413,7 +413,7 @@ export default function Landing() {
           )
 
           /* Role Selection Unit */
-          , React.createElement('div', { className: "flex justify-center md:justify-end animate-fade-in-right mt-12 md:mt-0" }
+          , React.createElement('div', { className: "flex justify-center md:justify-end animate-fade-in-right mt-8 md:mt-0 pb-20 md:pb-0" }
             , React.createElement(RoleLogin, {})
           )
         )

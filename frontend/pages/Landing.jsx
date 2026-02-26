@@ -384,8 +384,8 @@ export default function Landing() {
           })
         )
 
-        , React.createElement('div', { className: "relative z-20 max-w-7xl mx-auto px-6 h-full grid md:grid-cols-2 gap-12 items-center" }
-          , React.createElement('div', { className: "text-white animate-fade-in-left" }
+        , React.createElement('div', { className: "relative z-20 max-w-7xl mx-auto px-6 py-12 md:py-0 h-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center" }
+          , React.createElement('div', { className: "text-white animate-fade-in-left text-center md:text-left" }
             , React.createElement('div', { className: "inline-block bg-primary text-secondary px-4 py-1 rounded font-bold text-sm mb-6" }
               , slides[currentSlide].subtitle
             )
@@ -412,8 +412,8 @@ export default function Landing() {
             )
           )
 
-          /* Role Selection Side Unit */
-          , React.createElement('div', { className: "hidden md:flex justify-end animate-fade-in-right" }
+          /* Role Selection Unit */
+          , React.createElement('div', { className: "flex justify-center md:justify-end animate-fade-in-right mt-12 md:mt-0" }
             , React.createElement(RoleLogin, {})
           )
         )

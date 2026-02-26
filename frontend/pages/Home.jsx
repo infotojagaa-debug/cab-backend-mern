@@ -671,12 +671,12 @@ export default function Home() {
       <div className="relative z-10 min-h-screen">
         {/* Cinematic Header */}
         <div className="border-b border-white/10 bg-black/40 backdrop-blur-lg sticky top-0 z-[1000] shadow-2xl">
-          <div className="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate("/")}>
-              <div className="bg-primary p-2.5 rounded-2xl shadow-[0_0_20px_rgba(255,153,0,0.4)] group-hover:scale-110 transition-transform duration-300">
-                <Car className="w-8 h-8 text-white" />
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-4 cursor-pointer group" onClick={() => navigate("/")}>
+              <div className="bg-primary p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-[0_0_20px_rgba(255,153,0,0.4)] group-hover:scale-110 transition-transform duration-300">
+                <Car className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
-              <span className="font-black text-2xl text-white tracking-tighter uppercase">WeeFly</span>
+              <span className="font-black text-lg sm:text-2xl text-white tracking-tighter uppercase">WeeFly</span>
             </div>
             <div className="flex items-center gap-8">
               {user && (
@@ -688,17 +688,17 @@ export default function Home() {
                   <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`} alt={user.name} className="w-10 h-10 rounded-full border-2 border-primary/40 shadow-lg" />
                 </div>
               )}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <Link to="/ride-history">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white text-[11px] font-black uppercase tracking-widest transition-all">
-                    <History className="w-4 h-4" /> History
+                  <button className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white text-[9px] sm:text-[11px] font-black uppercase tracking-widest transition-all">
+                    <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">History</span>
                   </button>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 rounded-full text-destructive-foreground text-[11px] font-black uppercase tracking-widest transition-all"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 rounded-full text-destructive-foreground text-[9px] sm:text-[11px] font-black uppercase tracking-widest transition-all"
                 >
-                  <LogOut className="w-4 h-4" /> Logout
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Logout</span>
                 </button>
               </div>
             </div>

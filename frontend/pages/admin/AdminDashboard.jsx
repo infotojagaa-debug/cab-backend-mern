@@ -23,6 +23,7 @@ export default function AdminDashboard() {
     const [config, setConfig] = useState(null);
     const [loading, setLoading] = useState(true);
     const [focusLocation, setFocusLocation] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         fetchDashboardData();
@@ -168,10 +169,24 @@ export default function AdminDashboard() {
             backgroundAttachment: 'fixed'
         }}>
             {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/75 backdrop-blur-[1px] z-0" />
+            <div className={`absolute inset-0 bg-black/75 backdrop-blur-[1px] z-0`} />
+
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
 
             {/* Sidebar */}
-            <aside className="relative z-10 w-80 bg-white/5 backdrop-blur-3xl border-r border-white/10 p-8 flex flex-col h-screen sticky top-0 shadow-2xl overflow-y-auto custom-scrollbar">
+            <aside className={`fixed lg:sticky top-0 left-0 z-50 w-80 bg-gray-900/95 lg:bg-white/5 backdrop-blur-3xl border-r border-white/10 p-8 flex flex-col h-screen shadow-2xl transition-transform duration-300 lg:translate-x-0 overflow-y-auto custom-scrollbar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="lg:hidden absolute top-8 right-8 text-white/40 hover:text-white"
+                >
+                    <XCircle className="w-6 h-6" />
+                </button>
                 <div className="flex items-center gap-4 mb-12">
                     <div className="bg-amber-500 p-3 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)]">
                         <Car className="w-8 h-8 text-white" />
@@ -196,6 +211,7 @@ export default function AdminDashboard() {
                             onClick={() => {
                                 setActiveTab(item.id);
                                 if (item.id !== 'grid') setFocusLocation(null);
+                                setIsSidebarOpen(false); // Close on selection on mobile
                             }}
                             className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all duration-300 relative overflow-hidden group ${activeTab === item.id
                                 ? "bg-amber-500 text-white shadow-[0_10px_30px_rgba(245,158,11,0.3)] translate-x-2"
@@ -231,12 +247,20 @@ export default function AdminDashboard() {
             </aside>
 
             {/* Main Content */}
-            <main className="relative z-10 flex-grow p-12 flex flex-col h-screen overflow-hidden">
-                <header className="mb-12 shrink-0">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-7xl font-black text-white mb-2 capitalize tracking-tighter drop-shadow-2xl">{activeTab}</h2>
-                            <p className="text-white/40 font-bold uppercase text-[10px] tracking-[0.5em] ml-1">Neural Grid Control & Deployment Manager</p>
+            <main className="relative z-10 flex-grow p-6 sm:p-12 flex flex-col h-screen overflow-hidden">
+                <header className="mb-8 sm:mb-12 shrink-0">
+                    <div className="flex items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden p-3 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 transition-all"
+                            >
+                                <Activity className="w-5 h-5" />
+                            </button>
+                            <div>
+                                <h2 className="text-3xl sm:text-7xl font-black text-white mb-2 capitalize tracking-tighter drop-shadow-2xl">{activeTab}</h2>
+                                <p className="text-white/40 font-bold uppercase text-[8px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.5em] ml-1">Neural Grid Control & Deployment Manager</p>
+                            </div>
                         </div>
                         <div className="flex gap-4">
                             <button onClick={fetchDashboardData} className="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-white active:rotate-180 duration-500">
@@ -246,9 +270,9 @@ export default function AdminDashboard() {
                     </div>
                 </header>
 
-                <div className="flex-grow overflow-y-auto pr-4 custom-scrollbar pb-40">
+                <div className="flex-grow overflow-y-auto pr-0 sm:pr-4 custom-scrollbar pb-40">
                     {activeTab === "overview" && (
-                        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                        <div className="space-y-8 sm:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                             {/* Stats Strip */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {[
@@ -268,7 +292,7 @@ export default function AdminDashboard() {
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">{s.label}</p>
-                                            <p className="text-3xl xl:text-4xl font-black text-white tracking-tighter whitespace-nowrap truncate drop-shadow-lg">{s.value}</p>
+                                            <p className="text-2xl sm:text-3xl xl:text-4xl font-black text-white tracking-tighter whitespace-nowrap truncate drop-shadow-lg">{s.value}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -532,12 +556,12 @@ export default function AdminDashboard() {
 
                     {activeTab === "settings" && config && (
                         <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-700">
-                            <div className="bg-white/5 backdrop-blur-3xl p-16 rounded-[5rem] border border-white/10 shadow-inner space-y-16">
+                            <div className="bg-white/5 backdrop-blur-3xl p-6 sm:p-16 rounded-[2rem] sm:rounded-[5rem] border border-white/10 shadow-inner space-y-12 sm:space-y-16">
                                 <div>
-                                    <h3 className="text-2xl font-black text-white mb-12 border-b border-white/10 pb-10 flex items-center gap-5">
-                                        <Clock className="w-10 h-10 text-amber-500" /> Core Logistical Protocols
+                                    <h3 className="text-xl sm:text-2xl font-black text-white mb-8 sm:mb-12 border-b border-white/10 pb-6 sm:pb-10 flex items-center gap-5">
+                                        <Clock className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500" /> Core Logistical Protocols
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-12">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12">
                                         <div className="space-y-5">
                                             <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] ml-4">Base Scalar Fare (₹)</label>
                                             <input
@@ -560,10 +584,10 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-2xl font-black text-white mb-12 border-b border-white/10 pb-10 flex items-center gap-5">
-                                        <TrendingUp className="w-10 h-10 text-emerald-500" /> Revenue Vector Scalar
+                                    <h3 className="text-xl sm:text-2xl font-black text-white mb-8 sm:mb-12 border-b border-white/10 pb-6 sm:pb-10 flex items-center gap-5">
+                                        <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" /> Revenue Vector Scalar
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-12">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12">
                                         <div className="space-y-5">
                                             <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] ml-4">HQ Commission Retain (%)</label>
                                             <input

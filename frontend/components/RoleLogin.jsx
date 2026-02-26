@@ -55,7 +55,7 @@ export default function RoleLogin() {
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent pointer-events-none" />
                 <div className="flex items-center justify-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                    <p className="text-center text-amber-300 font-black text-xs uppercase tracking-[0.35em]">
+                    <p className="text-center text-amber-300 font-black text-[10px] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.35em]">
                         Select Your Portal
                     </p>
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -67,7 +67,7 @@ export default function RoleLogin() {
                 <button
                     key={r.id}
                     onClick={() => handleRoleRedirect(r.id)}
-                    className="group relative overflow-hidden bg-black/50 hover:bg-black/70 backdrop-blur-xl transition-all duration-300 rounded-2xl px-5 py-4 text-left border border-white/10 hover:border-white/25 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98]"
+                    className="group relative overflow-hidden bg-black/50 hover:bg-black/70 backdrop-blur-xl transition-all duration-300 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 text-left border border-white/10 hover:border-white/25 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98]"
                     style={{ animationDelay: `${i * 100}ms` }}
                 >
                     {/* Color sweep on hover */}
@@ -78,19 +78,19 @@ export default function RoleLogin() {
 
                     <div className="flex items-center gap-4">
                         {/* Icon */}
-                        <div className={`w-14 h-14 rounded-xl ${r.iconBg} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}>
-                            <r.icon className={`w-7 h-7 ${r.iconColor}`} />
+                        <div className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl ${r.iconBg} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}>
+                            <r.icon className={`w-6 h-6 sm:w-7 sm:h-7 ${r.iconColor}`} />
                         </div>
 
                         {/* Text */}
-                        <div className="flex-1">
-                            <h3 className="text-base font-black text-white leading-none mb-0.5 tracking-wide">{r.title}</h3>
-                            <p className="text-white/50 font-medium text-xs group-hover:text-white/70 transition-colors">{r.description}</p>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-sm sm:text-base font-black text-white leading-none mb-0.5 tracking-wide truncate">{r.title}</h3>
+                            <p className="text-white/50 font-medium text-[10px] sm:text-xs group-hover:text-white/70 transition-colors line-clamp-1">{r.description}</p>
                         </div>
 
                         {/* Arrow */}
-                        <div className={`w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 group-hover:text-white transition-all duration-300 ${r.arrowHover} group-hover:border-transparent`}>
-                            <ArrowRight className="w-4 h-4" />
+                        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/60 group-hover:text-white transition-all duration-300 ${r.arrowHover} group-hover:border-transparent shrink-0`}>
+                            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
                     </div>
                 </button>

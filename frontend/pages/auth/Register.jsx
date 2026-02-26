@@ -164,27 +164,27 @@ export default function Register() {
             </div>
 
             {/* Role Selection */}
-            <div className="grid grid-cols-3 gap-2 p-1.5 bg-white/5 border border-white/5 rounded-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-white/5 border border-white/5 rounded-2xl">
               <button
                 type="button"
                 onClick={() => setRole('customer')}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.role === 'customer' ? 'bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/30' : 'text-gray-400 hover:bg-white/5'}`}
+                className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest transition-all ${formData.role === 'customer' ? 'bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/30' : 'text-gray-400 hover:bg-white/5'}`}
               >
-                <User className="w-4 h-4" /> Rider
+                <User className="w-4 h-4 shrink-0" /> Rider
               </button>
               <button
                 type="button"
                 onClick={() => setRole('driver')}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.role === 'driver' ? 'bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/30' : 'text-gray-400 hover:bg-white/5'}`}
+                className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest transition-all ${formData.role === 'driver' ? 'bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/30' : 'text-gray-400 hover:bg-white/5'}`}
               >
-                <Car className="w-4 h-4" /> Driver
+                <Car className="w-4 h-4 shrink-0" /> Driver
               </button>
               <button
                 type="button"
                 onClick={() => setRole('admin')}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${formData.role === 'admin' ? 'bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/30' : 'text-gray-400 hover:bg-white/5'}`}
+                className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-wider sm:tracking-widest transition-all ${formData.role === 'admin' ? 'bg-amber-500 text-gray-950 shadow-lg shadow-amber-500/30' : 'text-gray-400 hover:bg-white/5'}`}
               >
-                <CheckCircle className="w-4 h-4" /> Admin
+                <CheckCircle className="w-4 h-4 shrink-0" /> Admin
               </button>
             </div>
 

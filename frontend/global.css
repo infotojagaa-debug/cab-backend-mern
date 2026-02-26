@@ -120,8 +120,14 @@
   }
 
   .map-container-responsive {
-    height: 600px;
+    height: 400px;
     width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .map-container-responsive {
+      height: 600px;
+    }
   }
 
   .animate-plus-pulse {

@@ -456,12 +456,12 @@ function DriverDashboard() {
 
                             {/* Offline overlay */}
                             {!isOnline && (
-                                <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-[1000] flex flex-col items-center justify-center text-white text-center p-6">
-                                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-5 border border-white/20 text-white/40">
-                                        <ShieldAlert className="w-10 h-10" />
+                                <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-[1000] flex flex-col items-center justify-center text-white text-center p-4 sm:p-6">
+                                    <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mb-4 sm:mb-5 border border-white/20 text-white/40">
+                                        <ShieldAlert className="w-7 h-7 sm:w-10 sm:h-10" />
                                     </div>
-                                    <h3 className="text-3xl font-black mb-2 uppercase tracking-tight">You are Offline</h3>
-                                    <p className="text-white/70 font-semibold">Go online to receive ride requests</p>
+                                    <h3 className="text-xl sm:text-3xl font-black mb-1 sm:mb-2 uppercase tracking-tight">You are Offline</h3>
+                                    <p className="text-[10px] sm:text-base text-white/70 font-semibold px-4">Go online to receive ride requests</p>
                                 </div>
                             )}
                         </div>
@@ -576,13 +576,13 @@ function DriverDashboard() {
                                             </div>
                                         </div>
                                         <div className="space-y-2 relative pl-4 before:absolute before:left-1 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
-                                            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                                                <span className="truncate">{mission.pickup.address}</span>
+                                            <div className="flex items-start gap-2 text-[10px] font-bold text-gray-600">
+                                                <span className="w-1.5 h-1.5 mt-1 rounded-full bg-emerald-500 flex-shrink-0" />
+                                                <span className="line-clamp-2 break-words">{mission.pickup.address}</span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                                                <span className="truncate">{mission.dropoff.address}</span>
+                                            <div className="flex items-start gap-2 text-[10px] font-bold text-gray-600">
+                                                <span className="w-1.5 h-1.5 mt-1 rounded-full bg-red-500 flex-shrink-0" />
+                                                <span className="line-clamp-2 break-words">{mission.dropoff.address}</span>
                                             </div>
                                         </div>
                                         <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">

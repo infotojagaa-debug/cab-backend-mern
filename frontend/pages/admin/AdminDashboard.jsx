@@ -180,7 +180,7 @@ export default function AdminDashboard() {
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed lg:sticky top-0 left-0 z-50 w-80 bg-gray-900/95 lg:bg-white/5 backdrop-blur-3xl border-r border-white/10 p-8 flex flex-col h-screen shadow-2xl transition-transform duration-300 lg:translate-x-0 overflow-y-auto custom-scrollbar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <aside className={`fixed lg:sticky top-0 left-0 z-50 w-72 sm:w-80 bg-gray-900/95 lg:bg-white/5 backdrop-blur-3xl border-r border-white/10 p-4 sm:p-8 flex flex-col h-screen shadow-2xl transition-transform duration-300 lg:translate-x-0 overflow-y-auto custom-scrollbar ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <button
                     onClick={() => setIsSidebarOpen(false)}
                     className="lg:hidden absolute top-8 right-8 text-white/40 hover:text-white"
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
             </aside>
 
             {/* Main Content */}
-            <main className="relative z-10 flex-grow p-6 sm:p-12 flex flex-col h-screen overflow-hidden">
+            <main className="relative z-10 flex-grow p-4 sm:p-12 flex flex-col h-screen overflow-hidden">
                 <header className="mb-8 sm:mb-12 shrink-0">
                     <div className="flex items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
@@ -258,8 +258,8 @@ export default function AdminDashboard() {
                                 <Activity className="w-5 h-5" />
                             </button>
                             <div>
-                                <h2 className="text-3xl sm:text-7xl font-black text-white mb-2 capitalize tracking-tighter drop-shadow-2xl">{activeTab}</h2>
-                                <p className="text-white/40 font-bold uppercase text-[8px] sm:text-[10px] tracking-[0.3em] sm:tracking-[0.5em] ml-1">Neural Grid Control & Deployment Manager</p>
+                                <h2 className="text-2xl sm:text-7xl font-black text-white mb-2 capitalize tracking-tighter drop-shadow-2xl">{activeTab}</h2>
+                                <p className="text-white/40 font-bold uppercase text-[7px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.5em] ml-1">Grid Control & Deployment</p>
                             </div>
                         </div>
                         <div className="flex gap-4">
@@ -275,36 +275,36 @@ export default function AdminDashboard() {
                         <div className="space-y-8 sm:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                             {/* Stats Strip */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {[
-                                    { label: "Net Revenue", value: `₹${stats.totalRevenue?.toLocaleString() || '0'}`, icon: <IndianRupee className="w-6 h-6" />, desc: "+12.5% this week", color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
-                                    { label: "WeeFly Status", value: stats.activeDrivers, icon: <Car className="w-6 h-6" />, desc: "Online Assets", color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20" },
-                                    { label: "Rider Base", value: stats.totalUsers, icon: <Users className="w-6 h-6" />, desc: "Registered Users", color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20" },
-                                    { label: "Mission Count", value: stats.totalRides, icon: <CheckCircle className="w-6 h-6" />, desc: "Success Rate: 99%", color: "text-indigo-400", bg: "bg-indigo-400/10", border: "border-indigo-400/20" },
+                                {stats && [
+                                    { label: "Net Revenue", value: `₹${stats.totalRevenue?.toLocaleString() || '0'}`, icon: <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6" />, desc: "+12.5% this week", color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
+                                    { label: "WeeFly Status", value: stats.activeDrivers, icon: <Car className="w-5 h-5 sm:w-6 sm:h-6" />, desc: "Online Assets", color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20" },
+                                    { label: "Rider Base", value: stats.totalUsers, icon: <Users className="w-5 h-5 sm:w-6 sm:h-6" />, desc: "Registered Users", color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20" },
+                                    { label: "Mission Count", value: stats.totalRides, icon: <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />, desc: "Success Rate: 99%", color: "text-indigo-400", bg: "bg-indigo-400/10", border: "border-indigo-400/20" },
                                 ].map((s, i) => (
-                                    <div key={i} className={`bg-white/5 backdrop-blur-3xl p-8 rounded-[2.5rem] border ${s.border} shadow-2xl hover:bg-white/10 transition-all duration-500 group cursor-default h-full flex flex-col justify-between`}>
-                                        <div className="flex items-center justify-between mb-6">
-                                            <div className={`${s.bg} ${s.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>
+                                    <div key={i} className={`bg-white/5 backdrop-blur-3xl p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border ${s.border} shadow-2xl hover:bg-white/10 transition-all duration-500 group cursor-default h-full flex flex-col justify-between`}>
+                                        <div className="flex items-center justify-between mb-4 sm:mb-6">
+                                            <div className={`${s.bg} ${s.color} w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>
                                                 {s.icon}
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">{s.desc}</p>
+                                                <p className="text-[7px] sm:text-[9px] font-black text-white/20 uppercase tracking-[0.1em] sm:tracking-[0.2em]">{s.desc}</p>
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-1">{s.label}</p>
-                                            <p className="text-2xl sm:text-3xl xl:text-4xl font-black text-white tracking-tighter whitespace-nowrap truncate drop-shadow-lg">{s.value}</p>
+                                            <p className="text-[8px] sm:text-[10px] font-black text-white/40 uppercase tracking-[0.1em] sm:tracking-[0.3em] mb-1">{s.label}</p>
+                                            <p className="text-xl sm:text-2xl xl:text-4xl font-black text-white tracking-tighter whitespace-nowrap truncate drop-shadow-lg">{s.value}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Verification Center */}
-                            <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 p-10 shadow-inner">
-                                <div className="flex items-center justify-between mb-10">
-                                    <h3 className="text-xl font-black text-white flex items-center gap-4">
-                                        <ShieldCheck className="w-6 h-6 text-amber-500" /> Security Verification Queue
+                            <div className="bg-white/5 backdrop-blur-3xl rounded-[2rem] sm:rounded-[3rem] border border-white/10 p-6 sm:p-10 shadow-inner">
+                                <div className="flex flex-col sm:flex-row items-center justify-between mb-8 sm:mb-10 gap-4">
+                                    <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-4">
+                                        <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" /> Security Verification Queue
                                     </h3>
-                                    <span className="px-5 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                                    <span className="px-5 py-2 bg-amber-500/10 border border-amber-500/20 rounded-full text-[8px] sm:text-[10px] font-black text-amber-500 uppercase tracking-widest">
                                         {pendingDrivers.filter(d => d.status === 'pending').length} Action Items
                                     </span>
                                 </div>
@@ -347,19 +347,21 @@ export default function AdminDashboard() {
                     )}
 
                     {activeTab === "drivers" && (
-                        <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
-                            <div className="p-8 border-b border-white/10 bg-white/5 flex items-center justify-between">
-                                <div className="flex items-center gap-6 px-4 bg-black/20 rounded-2xl border border-white/5 w-96">
+                        <div className="bg-white/5 backdrop-blur-3xl rounded-[2rem] sm:rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+                            <div className="p-4 sm:p-8 border-b border-white/10 bg-white/5 flex flex-col lg:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 px-4 bg-black/20 rounded-xl sm:rounded-2xl border border-white/5 w-full lg:w-96">
                                     <Search className="text-white/20 w-4 h-4" />
-                                    <input placeholder="Search WeeFly assets..." className="bg-transparent border-none outline-none text-white font-medium text-xs py-4 w-full placeholder:text-white/20" />
+                                    <input placeholder="Search WeeFly assets..." className="bg-transparent border-none outline-none text-white font-medium text-xs py-3 sm:py-4 w-full placeholder:text-white/20" />
                                 </div>
-                                <div className="flex gap-3">
-                                    <button className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[9px] font-black uppercase text-white hover:bg-white/10 transition-all">
+                                <div className="flex gap-3 w-full lg:w-auto">
+                                    <button className="flex-grow flex items-center justify-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-[8px] sm:text-[9px] font-black uppercase text-white hover:bg-white/10 transition-all">
                                         <Filter className="w-3.5 h-3.5" /> Filter Status
                                     </button>
                                 </div>
                             </div>
-                            <div className="overflow-x-auto">
+
+                            {/* Desktop Table View */}
+                            <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
                                         <tr className="bg-white/[0.02]">
@@ -429,6 +431,63 @@ export default function AdminDashboard() {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Mobile Card View */}
+                            <div className="lg:hidden p-4 space-y-4">
+                                {allDrivers.map(driver => (
+                                    <div key={driver._id} className="p-6 bg-white/5 rounded-[1.5rem] border border-white/10 space-y-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 flex items-center justify-center font-black text-white">
+                                                {driver.name[0]}
+                                            </div>
+                                            <div className="flex-grow min-w-0">
+                                                <span className="font-black text-white text-base tracking-tight block truncate">{driver.name}</span>
+                                                <span className="text-[8px] text-white/20 font-black uppercase tracking-widest">{driver.profile?.vehicle?.model || 'Generic Asset'}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 py-4 border-y border-white/5">
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-[7px] font-black text-white/20 uppercase tracking-widest">Status</p>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-1 h-1 rounded-full ${driver.status === 'active' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                                    <span className={`text-[8px] font-black uppercase tracking-wider ${driver.status === 'active' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                        {driver.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-[7px] font-black text-white/20 uppercase tracking-widest">Connectivity</p>
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-1 h-1 rounded-full ${driver.isOnline ? 'bg-amber-400 animate-pulse' : 'bg-gray-600'}`} />
+                                                    <span className={`text-[8px] font-black uppercase tracking-wider ${driver.isOnline ? 'text-amber-400' : 'text-gray-500'}`}>
+                                                        {driver.isOnline ? 'ONLINE' : 'OFFLINE'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            {(driver.location || driver.isOnline) && (
+                                                <button onClick={() => {
+                                                    if (driver.location) setFocusLocation(driver.location);
+                                                    setActiveTab('grid');
+                                                }} className="flex-grow flex items-center justify-center gap-2 py-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 text-[9px] font-black uppercase">
+                                                    <Navigation className="w-3.5 h-3.5" /> Track
+                                                </button>
+                                            )}
+                                            {driver.status !== 'suspended' && (
+                                                <button onClick={() => handleSuspendUser(driver._id)} className="flex-grow flex items-center justify-center gap-2 py-3 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20 text-[9px] font-black uppercase">
+                                                    <XCircle className="w-3.5 h-3.5" /> Suspend
+                                                </button>
+                                            )}
+                                            <button className="p-3 bg-white/5 text-white/40 rounded-xl border border-white/5">
+                                                <Eye className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -443,55 +502,55 @@ export default function AdminDashboard() {
                             ) : (
                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
                                     {activeRides.map(ride => (
-                                        <div key={ride._id} className="bg-white/5 backdrop-blur-3xl p-12 rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700">
-                                            <div className="absolute top-0 right-0 p-12">
-                                                <span className="px-6 py-3 bg-amber-500/10 text-amber-500 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-amber-500/20 backdrop-blur-xl shadow-inner">
+                                        <div key={ride._id} className="bg-white/5 backdrop-blur-3xl p-6 sm:p-12 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 shadow-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700">
+                                            <div className="absolute top-0 right-0 p-6 sm:p-12">
+                                                <span className="px-4 sm:px-6 py-2 sm:py-3 bg-amber-500/10 text-amber-500 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] border border-amber-500/20 backdrop-blur-xl shadow-inner">
                                                     {ride.status.replace('_', ' ')}
                                                 </span>
                                             </div>
-                                            <div className="mb-12">
-                                                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-3">Mission Vector ID</p>
+                                            <div className="mb-8 sm:mb-12">
+                                                <p className="text-[8px] sm:text-[10px] font-black text-white/20 uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-2 sm:mb-3">Mission Vector ID</p>
                                                 <div className="flex items-center justify-between flex-wrap gap-4">
-                                                    <p className="font-black text-white text-3xl tracking-tighter uppercase">RHX-{ride._id.slice(-6)}</p>
-                                                    <div className="flex items-center gap-3">
+                                                    <p className="font-black text-white text-xl sm:text-3xl tracking-tighter uppercase">RHX-{ride._id.slice(-6)}</p>
+                                                    <div className="flex items-center gap-2 sm:gap-3">
                                                         <button
                                                             onClick={() => trackRideOnMap(ride)}
-                                                            className="p-3 bg-blue-500/10 rounded-2xl hover:bg-blue-500/20 transition-all text-blue-400 border border-blue-500/20 shadow-lg group-hover:scale-110 duration-300"
+                                                            className="p-2 sm:p-3 bg-blue-500/10 rounded-xl sm:rounded-2xl hover:bg-blue-500/20 transition-all text-blue-400 border border-blue-500/20 shadow-lg group-hover:scale-110 duration-300"
                                                             title="Track Vector"
                                                         >
-                                                            <Navigation className="w-5 h-5" />
+                                                            <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
                                                         </button>
                                                         <button
                                                             onClick={() => handleCancelMission(ride._id)}
-                                                            className="p-3 bg-red-500/10 rounded-2xl hover:bg-red-500/20 transition-all text-red-500 border border-red-500/20 shadow-lg group-hover:scale-110 duration-300"
+                                                            className="p-2 sm:p-3 bg-red-500/10 rounded-xl sm:rounded-2xl hover:bg-red-500/20 transition-all text-red-500 border border-red-500/20 shadow-lg group-hover:scale-110 duration-300"
                                                             title="Abort Mission"
                                                         >
-                                                            <XCircle className="w-5 h-5" />
+                                                            <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-8 mb-12 relative">
-                                                <div className="absolute left-10 top-2 bottom-2 w-0.5 bg-gradient-to-b from-emerald-500 via-white/5 to-red-500" />
-                                                <div className="relative pl-24 group/loc">
-                                                    <div className="absolute left-8 top-1.5 w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(52,211,153,0.8)] border-4 border-black group-hover/loc:scale-125 transition-transform" />
-                                                    <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Origin Grid</p>
-                                                    <p className="text-lg font-bold text-white leading-tight line-clamp-2 max-w-sm">{ride.pickup.address}</p>
+                                            <div className="space-y-6 sm:space-y-8 mb-8 sm:mb-12 relative">
+                                                <div className="absolute left-6 sm:left-10 top-2 bottom-2 w-0.5 bg-gradient-to-b from-emerald-500 via-white/5 to-red-500" />
+                                                <div className="relative pl-16 sm:pl-24 group/loc">
+                                                    <div className="absolute left-4.5 sm:left-8 top-1.5 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-emerald-500 shadow-[0_0_20px_rgba(52,211,153,0.8)] border-2 sm:border-4 border-black group-hover/loc:scale-125 transition-transform" />
+                                                    <p className="text-[9px] sm:text-[11px] font-black text-white/20 uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1 sm:mb-2">Origin Grid</p>
+                                                    <p className="text-sm sm:text-lg font-bold text-white leading-tight line-clamp-2 max-w-sm">{ride.pickup.address}</p>
                                                 </div>
-                                                <div className="relative pl-24 group/loc">
-                                                    <div className="absolute left-8 top-1.5 w-4 h-4 rounded-full bg-red-500 shadow-[0_0_20px_rgba(248,113,113,0.8)] border-4 border-black group-hover/loc:scale-125 transition-transform" />
-                                                    <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.2em] mb-2">Target Interface</p>
-                                                    <p className="text-lg font-bold text-white leading-tight line-clamp-2 max-w-sm">{ride.dropoff.address}</p>
+                                                <div className="relative pl-16 sm:pl-24 group/loc">
+                                                    <div className="absolute left-4.5 sm:left-8 top-1.5 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-red-500 shadow-[0_0_20px_rgba(248,113,113,0.8)] border-2 sm:border-4 border-black group-hover/loc:scale-125 transition-transform" />
+                                                    <p className="text-[9px] sm:text-[11px] font-black text-white/20 uppercase tracking-[0.1em] sm:tracking-[0.2em] mb-1 sm:mb-2">Target Interface</p>
+                                                    <p className="text-sm sm:text-lg font-bold text-white leading-tight line-clamp-2 max-w-sm">{ride.dropoff.address}</p>
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-12 pt-10 border-t border-white/10 backdrop-blur-sm">
+                                            <div className="grid grid-cols-2 gap-6 sm:gap-12 pt-6 sm:pt-10 border-t border-white/10 backdrop-blur-sm">
                                                 <div>
-                                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Operational Pilot</p>
-                                                    <p className="font-black text-white tracking-tight text-xl">{ride.driver?.name || 'SYNCING...'}</p>
+                                                    <p className="text-[8px] sm:text-[10px] font-black text-white/20 uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2">Operational Pilot</p>
+                                                    <p className="font-black text-white tracking-tight text-base sm:text-xl truncate">{ride.driver?.name || 'SYNCING...'}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Contract Value</p>
-                                                    <p className="font-black text-amber-500 text-4xl tracking-tighter drop-shadow-lg">₹{ride.fare}</p>
+                                                    <p className="text-[8px] sm:text-[10px] font-black text-white/20 uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-1 sm:mb-2">Contract Value</p>
+                                                    <p className="font-black text-amber-500 text-2xl sm:text-4xl tracking-tighter drop-shadow-lg">₹{ride.fare}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -588,23 +647,23 @@ export default function AdminDashboard() {
                                         <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500" /> Revenue Vector Scalar
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12">
-                                        <div className="space-y-5">
-                                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] ml-4">HQ Commission Retain (%)</label>
+                                        <div className="space-y-4 sm:space-y-5">
+                                            <label className="text-[8px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] sm:tracking-[0.4em] ml-2 sm:ml-4">HQ Commission Retain (%)</label>
                                             <input
                                                 type="number"
                                                 value={config.commission.percentage}
                                                 onChange={e => setConfig({ ...config, commission: { ...config.commission, percentage: Number(e.target.value) } })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-[2rem] px-10 py-6 font-black text-xl text-white focus:bg-white/10 transition-all outline-none focus:ring-4 ring-emerald-500/10 focus:border-emerald-500/40"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl sm:rounded-[2rem] px-6 sm:px-10 py-4 sm:py-6 font-black text-lg sm:text-xl text-white focus:bg-white/10 transition-all outline-none focus:ring-4 ring-emerald-500/10 focus:border-emerald-500/40"
                                             />
                                         </div>
-                                        <div className="space-y-5">
-                                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] ml-4">Surge Flux Multiplier</label>
+                                        <div className="space-y-4 sm:space-y-5">
+                                            <label className="text-[8px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] sm:tracking-[0.4em] ml-2 sm:ml-4">Surge Flux Multiplier</label>
                                             <input
                                                 type="number"
                                                 step="0.1"
                                                 value={config.fares.surgeMultiplier}
                                                 onChange={e => setConfig({ ...config, fares: { ...config.fares, surgeMultiplier: Number(e.target.value) } })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-[2rem] px-10 py-6 font-black text-xl text-white focus:bg-white/10 transition-all outline-none focus:ring-4 ring-orange-500/10 focus:border-orange-500/40"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl sm:rounded-[2rem] px-6 sm:px-10 py-4 sm:py-6 font-black text-lg sm:text-xl text-white focus:bg-white/10 transition-all outline-none focus:ring-4 ring-orange-500/10 focus:border-orange-500/40"
                                             />
                                         </div>
                                     </div>
@@ -612,9 +671,9 @@ export default function AdminDashboard() {
 
                                 <Button
                                     onClick={updateConfig}
-                                    className="w-full h-24 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-2xl uppercase tracking-[0.3em] transition-all shadow-2xl shadow-amber-500/40 mt-10 active:scale-95 border-b-8 border-orange-900/50"
+                                    className="w-full h-16 sm:h-24 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-black text-lg sm:text-2xl uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all shadow-2xl shadow-amber-500/40 mt-10 active:scale-95 border-b-8 border-orange-900/50"
                                 >
-                                    Commit Architectural Changes
+                                    Commit Changes
                                 </Button>
                             </div>
                         </div>

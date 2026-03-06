@@ -492,12 +492,12 @@ export default function AdminDashboard() {
                     )}
 
                     {activeTab === "operations" && (
-                        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
                             {activeRides.length === 0 ? (
-                                <div className="bg-white/5 backdrop-blur-3xl p-40 rounded-[5rem] border border-white/10 text-center shadow-inner">
-                                    <Globe className="w-24 h-24 text-white/5 mx-auto mb-10 animate-pulse" />
-                                    <h3 className="text-3xl font-black text-white mb-4 tracking-tighter uppercase whitespace-nowrap">Grid Silence: Zero Active Vectors</h3>
-                                    <p className="text-white/20 font-bold uppercase text-[11px] tracking-[0.4em]">Automated monitoring active • All mission parameters stable</p>
+                                <div className="bg-white/5 backdrop-blur-3xl p-12 sm:p-40 rounded-[2rem] sm:rounded-[5rem] border border-white/10 text-center shadow-inner">
+                                    <Globe className="w-12 h-12 sm:w-24 sm:h-24 text-white/5 mx-auto mb-6 sm:mb-10 animate-pulse" />
+                                    <h3 className="text-xl sm:text-3xl font-black text-white mb-2 sm:mb-4 tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis">Grid Silence</h3>
+                                    <p className="text-white/20 font-bold uppercase text-[8px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.4em]">Monitoring active • All parameters stable</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">

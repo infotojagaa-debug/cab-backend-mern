@@ -348,13 +348,13 @@ function DriverDashboard() {
 
             {/* Fixed frosted-glass header */}
             <header className="dd-header">
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                     <div className="flex items-center gap-3">
-                        <Car className="w-8 h-8 text-primary" />
-                        <h1 className="text-xl font-black text-white tracking-tight">DriveDash</h1>
+                        <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                        <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">DriveDash</h1>
                     </div>
                     {/* Driver Name Display */}
-                    <div className="hidden md:flex items-center gap-3 pl-6 border-l border-white/10">
+                    <div className="hidden sm:flex items-center gap-3 pl-6 border-l border-white/10">
                         <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary font-black text-xs">
                             {user?.name ? user.name[0].toUpperCase() : 'D'}
                         </div>
@@ -375,10 +375,10 @@ function DriverDashboard() {
                         </button>
                     )}
                     {/* Status + toggle */}
-                    <div className="flex items-center gap-3 bg-white/10 border border-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                        <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-500 ${isOnline ? 'bg-emerald-400 shadow-[0_0_8px_3px_rgba(52,211,153,0.6)] animate-pulse' : 'bg-gray-500'}`} />
-                        <span className={`text-sm font-black uppercase tracking-widest ${isOnline ? 'text-emerald-300' : 'text-gray-400'}`}>
-                            {isOnline ? 'Online' : 'Offline'}
+                    <div className="flex items-center gap-2 sm:gap-3 bg-white/10 border border-white/20 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full scale-90 sm:scale-100">
+                        <span className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full flex-shrink-0 transition-all duration-500 ${isOnline ? 'bg-emerald-400 shadow-[0_0_8px_3px_rgba(52,211,153,0.6)] animate-pulse' : 'bg-gray-500'}`} />
+                        <span className={`text-[10px] sm:text-sm font-black uppercase tracking-widest ${isOnline ? 'text-emerald-300' : 'text-gray-400'}`}>
+                            {isOnline ? 'On' : 'Off'}
                         </span>
                         <label className="switch">
                             <input type="checkbox" checked={isOnline || false} onChange={() => setIsOnline(!isOnline)} disabled={isOnline === null} />
@@ -404,10 +404,10 @@ function DriverDashboard() {
             {/* Stats strip */}
             <div className="dd-stats-strip">
                 {[
-                    { label: "Today's Earnings", value: `₹${Math.round(earnings.daily)}`, icon: <Coins className="w-6 h-6" />, ref: earningsRef },
-                    { label: 'Rating', value: `★ ${rating}`, icon: <Star className="w-6 h-6" />, ref: feedbackRef },
-                    { label: 'Total Trips', value: totalTrips, icon: <Route className="w-6 h-6" />, ref: missionsRef },
-                    { label: 'Wallet', value: `₹${Math.round(walletBalance)}`, icon: <Wallet className="w-6 h-6" />, ref: walletRef },
+                    { label: "Today", value: `₹${Math.round(earnings.daily)}`, icon: <Coins className="w-5 h-5 sm:w-6 sm:h-6" />, ref: earningsRef },
+                    { label: 'Rating', value: `${rating}`, icon: <Star className="w-5 h-5 sm:w-6 sm:h-6" />, ref: feedbackRef },
+                    { label: 'Trips', value: totalTrips, icon: <Route className="w-5 h-5 sm:w-6 sm:h-6" />, ref: missionsRef },
+                    { label: 'Wallet', value: `₹${Math.round(walletBalance)}`, icon: <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />, ref: walletRef },
                 ].map(s => (
                     <button
                         key={s.label}
@@ -415,8 +415,8 @@ function DriverDashboard() {
                         onClick={() => scrollToSection(s.ref)}
                     >
                         <span className="text-primary mb-1 group-hover:scale-110 transition-transform duration-300">{s.icon}</span>
-                        <span className="text-[9px] font-black text-white/50 uppercase tracking-widest">{s.label}</span>
-                        <span className="text-2xl font-black text-white group-hover:text-amber-300 transition-colors duration-300">{s.value}</span>
+                        <span className="text-[7px] sm:text-[9px] font-black text-white/50 uppercase tracking-[0.1em] sm:tracking-widest">{s.label}</span>
+                        <span className="text-base sm:text-2xl font-black text-white group-hover:text-amber-300 transition-colors duration-300">{s.value}</span>
                     </button>
                 ))}
             </div>
@@ -469,27 +469,22 @@ function DriverDashboard() {
 
                     {/* Active Trip Panel */}
                     {activeRide && (
-                        <div className="dd-glass-card animate-in slide-in-from-bottom-4 duration-500">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 bg-amber-400/20 rounded-2xl flex items-center justify-center text-2xl border border-amber-400/30 text-amber-500 font-black">
+                        <div className="dd-glass-card animate-in slide-in-from-bottom-4 duration-500 p-4 sm:p-7">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-5">
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <div className="w-10 h-10 sm:w-14 sm:h-14 bg-amber-400/20 rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl border border-amber-400/30 text-amber-500 font-black">
                                         {activeRide.customer?.name ? activeRide.customer.name[0].toUpperCase() : 'C'}
                                     </div>
-                                    <div>
-                                        <strong className="text-lg block font-black text-gray-900 leading-tight">{activeRide.customer?.name || 'Customer'}</strong>
-                                        <p className="text-sm font-semibold text-gray-500 flex items-center gap-1.5 mt-0.5">
-                                            <span className={`w-2 h-2 rounded-full ${activeRide.status === 'ongoing' ? 'bg-red-500' : 'bg-emerald-500'}`} />
-                                            {['driver_assigned', 'arriving', 'arrived'].includes(activeRide.status) ? 'Pickup' : 'Drop'}: {activeRide.status === 'ongoing' ? activeRide.dropoff.address : activeRide.pickup.address}
+                                    <div className="min-w-0">
+                                        <strong className="text-base sm:text-lg block font-black text-gray-900 leading-tight truncate">{activeRide.customer?.name || 'Customer'}</strong>
+                                        <p className="text-[10px] sm:text-sm font-semibold text-gray-500 flex items-center gap-1.5 mt-0.5 whitespace-nowrap overflow-hidden">
+                                            <span className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full flex-shrink-0 ${activeRide.status === 'ongoing' ? 'bg-red-500' : 'bg-emerald-500'}`} />
+                                            <span className="truncate">{['driver_assigned', 'arriving', 'arrived'].includes(activeRide.status) ? 'Pickup' : 'Drop'}: {activeRide.status === 'ongoing' ? activeRide.dropoff.address : activeRide.pickup.address}</span>
                                         </p>
                                     </div>
                                 </div>
-                                <span className="self-start px-4 py-1.5 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200">
-                                    {activeRide.status === 'searching' ? 'Search' :
-                                        activeRide.status === 'driver_assigned' ? 'Booked' :
-                                            activeRide.status === 'arriving' ? 'Coming' :
-                                                activeRide.status === 'arrived' ? 'Here' :
-                                                    activeRide.status === 'ongoing' ? 'Start' :
-                                                        activeRide.status === 'completed' ? 'Done' : activeRide.status}
+                                <span className="self-start sm:self-center px-3 sm:px-4 py-1 sm:py-1.5 bg-amber-100 text-amber-700 text-[8px] sm:text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200">
+                                    {activeRide.status.replace('_', ' ')}
                                 </span>
                             </div>
 
@@ -542,15 +537,15 @@ function DriverDashboard() {
                     )}
 
                     {/* Daily Missions Log */}
-                    <div ref={missionsRef} className="dd-glass-card hover:scale-[1.005] transition-all duration-300">
-                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                    <div ref={missionsRef} className="dd-glass-card hover:scale-[1.005] transition-all duration-300 p-5 sm:p-7">
+                        <div className="flex items-center justify-between mb-4 sm:mb-6 pb-4 border-b border-gray-100">
                             <div>
-                                <h3 className="text-[12px] font-black text-gray-900 uppercase tracking-widest leading-none mb-1">Daily Mission Log</h3>
-                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Operational Shift Records</p>
+                                <h3 className="text-[10px] sm:text-[12px] font-black text-gray-900 uppercase tracking-widest leading-none mb-1">Mission Log</h3>
+                                <p className="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Shift Records</p>
                             </div>
-                            <div className="bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 flex items-center gap-2">
-                                <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-                                <span className="text-[10px] font-black text-emerald-700 uppercase">{dailyMissions.length} SUCCESS</span>
+                            <div className="bg-emerald-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-100 flex items-center gap-1.5 sm:gap-2">
+                                <CheckCircle className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-emerald-500" />
+                                <span className="text-[8px] sm:text-[10px] font-black text-emerald-700 uppercase">{dailyMissions.length} OK</span>
                             </div>
                         </div>
 
@@ -667,34 +662,34 @@ function DriverDashboard() {
             {/* Incoming Request Modal */}
             {newRequest && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[5000] flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-md rounded-[40px] p-10 shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="flex justify-between items-center mb-8">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] sm:rounded-[40px] p-6 sm:p-10 shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="flex justify-between items-center mb-6 sm:mb-8">
                             <div>
-                                <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Incoming</p>
-                                <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-none">New Ride!</h2>
+                                <p className="text-[8px] sm:text-[9px] font-black text-amber-500 uppercase tracking-widest mb-1">Incoming</p>
+                                <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-none">New Ride!</h2>
                             </div>
-                            <div className="relative w-14 h-14 flex items-center justify-center">
+                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
                                 <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
                                     <circle r="20" cx="24" cy="24" className="stroke-red-100 fill-none" strokeWidth="4" />
                                     <circle r="20" cx="24" cy="24" className="stroke-red-500 fill-none" strokeWidth="4"
                                         style={{ strokeDasharray: '125.6', strokeDashoffset: `${125.6 - (timer / 15) * 125.6}`, transition: 'stroke-dashoffset 1s linear' }} />
                                 </svg>
-                                <span className="text-lg font-black text-red-500 relative z-10">{timer}</span>
+                                <span className="text-base sm:text-lg font-black text-red-500 relative z-10">{timer}</span>
                             </div>
                         </div>
 
-                        <div className="space-y-3 mb-6">
-                            <div className="flex items-start gap-3 bg-green-50 p-4 rounded-2xl border border-green-100">
-                                <span className="w-2.5 h-2.5 mt-1 rounded-full bg-green-500 flex-shrink-0" />
-                                <span className="font-bold text-gray-800 text-sm leading-snug">{newRequest.pickup.address}</span>
+                        <div className="space-y-2 sm:space-y-3 mb-6">
+                            <div className="flex items-start gap-2 sm:gap-3 bg-green-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-green-100">
+                                <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 mt-1 rounded-full bg-green-500 flex-shrink-0" />
+                                <span className="font-bold text-gray-800 text-xs sm:text-sm leading-snug truncate">{newRequest.pickup.address}</span>
                             </div>
-                            <div className="flex items-start gap-3 bg-red-50 p-4 rounded-2xl border border-red-100">
-                                <span className="w-2.5 h-2.5 mt-1 rounded-full bg-red-500 flex-shrink-0" />
-                                <span className="font-bold text-gray-800 text-sm leading-snug">{newRequest.dropoff.address}</span>
+                            <div className="flex items-start gap-2 sm:gap-3 bg-red-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-red-100">
+                                <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 mt-1 rounded-full bg-red-500 flex-shrink-0" />
+                                <span className="font-bold text-gray-800 text-xs sm:text-sm leading-snug truncate">{newRequest.dropoff.address}</span>
                             </div>
-                            <div className="flex gap-3 pt-1">
-                                <span className="text-sm font-black text-gray-700 bg-gray-100 px-4 py-2 rounded-full flex items-center gap-2"><Route className="w-3.5 h-3.5" /> {newRequest.distance}</span>
-                                <span className="text-sm font-black text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 flex items-center gap-2"><Coins className="w-3.5 h-3.5" /> ₹{newRequest.fare}</span>
+                            <div className="flex gap-2 sm:gap-3 pt-1">
+                                <span className="text-[10px] sm:text-sm font-black text-gray-700 bg-gray-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 sm:gap-2"><Route className="w-3 sm:w-3.5 h-3 sm:h-3.5" /> {newRequest.distance}</span>
+                                <span className="text-[10px] sm:text-sm font-black text-emerald-700 bg-emerald-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-emerald-100 flex items-center gap-1.5 sm:gap-2"><Coins className="w-3 sm:w-3.5 h-3 sm:h-3.5" /> ₹{newRequest.fare}</span>
                             </div>
                         </div>
 
@@ -716,20 +711,20 @@ function DriverDashboard() {
             {/* KYC Modal */}
             {showKycModal && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[6000] flex items-center justify-center p-4">
-                    <div className="bg-white p-10 rounded-[35px] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
-                        <h2 className="text-3xl font-black mb-2 tracking-tight">Driver Onboarding</h2>
-                        <p className="text-gray-400 font-medium mb-8 text-sm">Upload documents to verify your account.</p>
-                        <form onSubmit={handleKycUpload} className="space-y-5">
-                            {['Driving License', 'Vehicle Insurance', 'Aadhar / Identity Card'].map((label) => (
+                    <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[35px] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
+                        <h2 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight">Driver Onboarding</h2>
+                        <p className="text-gray-400 font-medium mb-6 sm:mb-8 text-xs">Upload documents to verify your account.</p>
+                        <form onSubmit={handleKycUpload} className="space-y-4 sm:space-y-5">
+                            {['Driving License', 'Vehicle Insurance', 'Identity Card'].map((label) => (
                                 <div key={label}>
-                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">{label}</label>
-                                    <input type="file" required className="w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-2xl focus:border-amber-400 transition-all outline-none cursor-pointer text-sm text-gray-500" />
+                                    <label className="text-[8px] sm:text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1.5 sm:mb-2">{label}</label>
+                                    <input type="file" required className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-dashed border-gray-200 rounded-xl sm:rounded-2xl focus:border-amber-400 transition-all outline-none cursor-pointer text-[10px] sm:text-sm text-gray-500" />
                                 </div>
                             ))}
-                            <div className="flex justify-end gap-4 mt-8">
-                                <button type="button" className="font-black text-gray-400 px-6 py-2 hover:text-gray-600 transition-colors" onClick={() => setShowKycModal(false)}>Cancel</button>
-                                <button type="submit" className="font-black px-8 py-3 rounded-2xl text-gray-900 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 shadow-md shadow-amber-300/30 transition-all hover:scale-[1.02] active:scale-95">
-                                    Submit for Verification
+                            <div className="flex justify-end gap-3 sm:gap-4 mt-6 sm:mt-8">
+                                <button type="button" className="font-black text-gray-400 px-4 sm:px-6 py-2 hover:text-gray-600 transition-colors text-xs sm:text-base" onClick={() => setShowKycModal(false)}>Cancel</button>
+                                <button type="submit" className="font-black px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-gray-900 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 shadow-md shadow-amber-300/30 transition-all hover:scale-[1.02] active:scale-95 text-xs sm:text-base">
+                                    Submit
                                 </button>
                             </div>
                         </form>
@@ -740,38 +735,36 @@ function DriverDashboard() {
             {/* Trip Success Modal */}
             {showSuccessCard && (
                 <div className="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[7000] flex items-center justify-center p-4 overflow-hidden">
-                    {/* Animated background particles effect would go here */}
-                    <div className="bg-gradient-to-br from-gray-900 to-black w-full max-w-md rounded-[50px] p-12 text-center border border-white/10 shadow-[0_0_100px_rgba(251,191,36,0.15)] animate-in zoom-in-95 duration-500 relative">
-                        <div className="absolute -top-12 left-1/2 -translate-x-1/2">
-                            <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(251,191,36,0.5)] border-4 border-black animate-bounce">
-                                <Trophy className="w-12 h-12 text-black" />
+                    <div className="bg-gradient-to-br from-gray-900 to-black w-full max-w-md rounded-[2.5rem] sm:rounded-[50px] p-8 sm:p-12 text-center border border-white/10 shadow-[0_0_100px_rgba(251,191,36,0.15)] animate-in zoom-in-95 duration-500 relative">
+                        <div className="absolute -top-10 sm:-top-12 left-1/2 -translate-x-1/2">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(251,191,36,0.5)] border-4 border-black animate-bounce">
+                                <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-black" />
                             </div>
                         </div>
 
-                        <div className="mt-8 space-y-2 mb-10">
-                            <h2 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Mission Victory!</h2>
-                            <p className="text-amber-400/60 font-black text-[10px] uppercase tracking-[0.3em]">Operational Protocol Success</p>
+                        <div className="mt-8 sm:mt-8 space-y-1 sm:space-y-2 mb-8 sm:mb-10">
+                            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tighter uppercase leading-none">Victory!</h2>
+                            <p className="text-amber-400/60 font-black text-[8px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em]">Operational Success</p>
                         </div>
 
-                        <div className="bg-white/5 rounded-[35px] border border-white/10 p-10 mb-10 relative group overflow-hidden">
-                            <div className="absolute inset-0 bg-yellow-400/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
+                        <div className="bg-white/5 rounded-[2rem] sm:rounded-[35px] border border-white/10 p-6 sm:p-10 mb-8 sm:mb-10 relative group overflow-hidden">
                             <div className="relative z-10">
-                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3">Net Earnings</p>
-                                <div className="text-6xl font-black text-white tracking-tighter mb-2">₹{lastEarnings.toFixed(0)}</div>
-                                <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold text-xs">
-                                    <CheckCircle className="w-3.5 h-3.5" /> Settled to Wallet
+                                <p className="text-[8px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 sm:mb-3">Net Earnings</p>
+                                <div className="text-4xl sm:text-6xl font-black text-white tracking-tighter mb-2">₹{lastEarnings.toFixed(0)}</div>
+                                <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-emerald-400 font-bold text-[10px] sm:text-xs">
+                                    <CheckCircle className="w-3 sm:w-3.5 h-3 sm:h-3.5" /> Settled
                                 </div>
                             </div>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <button
                                 onClick={() => setShowSuccessCard(false)}
-                                className="w-full py-6 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-black text-base rounded-3xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all uppercase tracking-widest"
+                                className="w-full py-4 sm:py-6 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-black text-sm sm:text-base rounded-2xl sm:rounded-3xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all uppercase tracking-widest"
                             >
                                 Back to Base
                             </button>
-                            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Awaiting next deployment...</p>
+                            <p className="text-[7px] sm:text-[9px] font-black text-white/20 uppercase tracking-widest">Awaiting deployment...</p>
                         </div>
                     </div>
                 </div>
@@ -781,46 +774,46 @@ function DriverDashboard() {
             <style>{`
                 /* BG image */
                 .dd-root { position: relative; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-                .dd-bg { position: fixed; inset: 0; z-index: 0; background: url('/driver-dashboard-bg.jpg') center/cover no-repeat; }
-                .dd-overlay-dark { position: fixed; inset: 0; z-index: 1; background: rgba(0,0,0,0.72); }
-                .dd-overlay-grad { position: fixed; inset: 0; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.60) 100%); }
+                .dd-bg { position: fixed; inset: 0; z-index: 0; background: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat; }
+                .dd-overlay-dark { position: fixed; inset: 0; z-index: 1; background: rgba(0,0,0,0.85); }
+                .dd-overlay-grad { position: fixed; inset: 0; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.7) 100%); }
+                
+                @media (max-width: 640px) {
+                    .dd-overlay-dark { background: rgba(0,0,0,0.9); }
+                }
 
                 /* Header */
-                .dd-header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; background: rgba(0,0,0,0.55); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.10); }
+                .dd-header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; sm:padding: 14px 28px; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
 
                 /* Stats strip */
                 .dd-stats-strip { position: relative; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.08); }
-                @media (max-width: 768px) { .dd-stats-strip { grid-template-columns: repeat(2, 1fr); } }
-                .dd-stat-card { display: flex; flex-direction: column; align-items: center; padding: 18px 12px; background: rgba(0,0,0,0.30); backdrop-filter: blur(10px); transition: all 0.3s; cursor: default; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
-                .dd-stat-card:hover { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.25); }
+                @media (max-width: 480px) { .dd-stats-strip { grid-template-columns: repeat(2, 1fr); } }
+                .dd-stat-card { display: flex; flex-direction: column; align-items: center; padding: 14px 8px; sm:padding: 18px 12px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); transition: all 0.3s; cursor: pointer; border: none; outline: none; }
+                .dd-stat-card:hover { background: rgba(251,191,36,0.15); }
 
                 /* Main layout */
-                .dd-main { position: relative; z-index: 10; display: grid; grid-template-columns: 1fr; gap: 20px; padding: 24px 24px 40px; }
-                @media (min-width: 1024px) { .dd-main { grid-template-columns: 1fr 360px; } }
-                .dd-left { display: flex; flex-direction: column; gap: 20px; }
-                .dd-right { display: flex; flex-direction: column; gap: 20px; }
+                .dd-main { position: relative; z-index: 10; display: grid; grid-template-columns: 1fr; gap: 16px; sm:gap: 24px; padding: 16px; sm:padding: 24px 24px 40px; }
+                @media (min-width: 1024px) { .dd-main { grid-template-columns: 1fr 340px; gap: 24px; } }
+                .dd-left { display: flex; flex-direction: column; gap: 16px; sm:gap: 24px; }
+                .dd-right { display: flex; flex-direction: column; gap: 16px; sm:gap: 24px; }
 
                 /* Map with gradient border */
-                .dd-map-border { padding: 3px; border-radius: 24px; background: linear-gradient(135deg, #fbbf24, #f59e0b, #f97316); box-shadow: 0 8px 40px rgba(251,191,36,0.30); transition: box-shadow 0.4s, transform 0.4s; }
-                .dd-map-border:hover { box-shadow: 0 12px 55px rgba(251,191,36,0.45); transform: scale(1.003); }
-                .dd-map-inner { position: relative; height: 500px; border-radius: 21px; overflow: hidden; background: #1a1a2e; }
-                @media (max-width: 1024px) { .dd-map-inner { height: 360px; } }
-                @media (max-width: 768px) { .dd-map-inner { height: 260px; } }
+                .dd-map-border { padding: 2px; sm:padding: 3px; border-radius: 20px; sm:border-radius: 24px; background: linear-gradient(135deg, #fbbf24, #f59e0b, #f97316); box-shadow: 0 8px 32px rgba(251,191,36,0.2); }
+                .dd-map-inner { position: relative; height: 300px; sm:height: 400px; lg:height: 500px; border-radius: 18px; sm:border-radius: 21px; overflow: hidden; background: #0a0a0f; }
 
-                /* Glassmorphism card — all sidebar + active trip panels */
-                .dd-glass-card { background: rgba(255,255,255,0.96); backdrop-filter: blur(24px); padding: 28px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.8), 0 0 0 1px rgba(251,191,36,0.15); }
+                /* Cards */
+                .dd-glass-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(24px); padding: 20px; sm:padding: 28px; border-radius: 20px; sm:border-radius: 24px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
 
                 /* Toggle Switch */
-                .switch { position: relative; display: inline-block; width: 54px; height: 28px; }
+                .switch { position: relative; display: inline-block; width: 44px; sm:width: 54px; height: 24px; sm:height: 28px; }
                 .switch input { opacity: 0; width: 0; height: 0; }
-                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .4s cubic-bezier(0.4,0,0.2,1); border-radius: 34px; border: 1px solid rgba(255,255,255,0.15); }
-                .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.4,0,0.2,1); border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
-                input:checked + .slider { background: linear-gradient(135deg, #34d399, #10b981); box-shadow: 0 0 16px rgba(16,185,129,0.5); border-color: transparent; }
-                input:checked + .slider:before { transform: translateX(26px); }
+                .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .4s; border-radius: 34px; }
+                .slider:before { position: absolute; content: ""; height: 18px; sm:height: 20px; width: 18px; sm:width: 20px; left: 3px; sm:left: 4px; bottom: 3px; sm:bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+                input:checked + .slider { background: #10b981; }
+                input:checked + .slider:before { transform: translateX(20px); sm:translateX(26px); }
 
-                /* Fade-in */
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-                .animate-fadeIn { animation: fadeIn 0.5s ease-out both; }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fadeIn { animation: fadeIn 0.4s ease-out both; }
 
                 @keyframes pulseSubtle {
                     0% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }

@@ -724,243 +724,272 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-            <div className="lg:col-span-2 space-y-8">
-              {/* Map Border with Cinematic Glow */}
-              <div className="relative p-1.5 rounded-[42px] bg-gradient-to-br from-primary via-orange-500 to-amber-600 shadow-[0_20px_60px_rgba(255,153,0,0.25)] transition-all duration-700 hover:shadow-[0_30px_80px_rgba(255,153,0,0.35)]">
-                <div className="relative map-container-responsive overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
-                  {rideStatus !== "idle" && (
-                    <div className="absolute top-8 left-8 z-[600] bg-black/60 backdrop-blur-lg border border-white/20 px-8 py-4 rounded-3xl shadow-2xl flex flex-col gap-1 min-w-[240px] animate-in slide-in-from-top-4 duration-500">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-3 h-3 rounded-full ${rideStatus === 'completed' ? 'bg-green-500 animate-pulse' : 'bg-primary animate-ping'}`} />
-                        <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white">
-                          {rideStatus === "searching" ? "Search" :
-                            rideStatus === "driver_assigned" ? "Booked" :
-                              rideStatus === "arriving" ? "Coming" :
-                                rideStatus === "arrived" ? "Here" :
-                                  rideStatus === "ongoing" ? (distanceToPickup && parseFloat(distanceToPickup) <= 0.05 ? "Destination Reached!" : "Start") :
-                                    rideStatus === "completed" ? "Done" : "Status unknown"}
-                        </span>
-                      </div>
-                      {(rideStatus === 'driver_assigned' || rideStatus === 'arriving' || rideStatus === 'arrived' || rideStatus === 'ongoing') && eta && (
-                        <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest mt-1">
-                          {rideStatus === 'ongoing' ? 'Target ETA:' : 'Approach ETA:'} <span className="text-primary font-black">{eta} mins</span> • {distanceToPickup} km
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+              {/* Main Map Hub */}
+              <div className="lg:col-span-3 space-y-8 order-1 lg:order-2">
+                {/* Map Border with Cinematic Glow */}
+                <div className="relative p-1.5 rounded-[42px] bg-gradient-to-br from-primary via-orange-500 to-amber-600 shadow-[0_20px_60px_rgba(255,153,0,0.25)] transition-all duration-700 hover:shadow-[0_30px_80px_rgba(255,153,0,0.35)]">
+                  <div className="relative map-container-responsive overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
+                    {rideStatus !== "idle" && (
+                      <div className="absolute top-8 left-8 z-[600] bg-black/60 backdrop-blur-lg border border-white/20 px-8 py-4 rounded-3xl shadow-2xl flex flex-col gap-1 min-w-[240px] animate-in slide-in-from-top-4 duration-500">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-3 h-3 rounded-full ${rideStatus === 'completed' ? 'bg-green-500 animate-pulse' : 'bg-primary animate-ping'}`} />
+                          <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white">
+                            {rideStatus === "searching" ? "Search" :
+                              rideStatus === "driver_assigned" ? "Booked" :
+                                rideStatus === "arriving" ? "Coming" :
+                                  rideStatus === "arrived" ? "Here" :
+                                    rideStatus === "ongoing" ? (distanceToPickup && parseFloat(distanceToPickup) <= 0.05 ? "Destination Reached!" : "Start") :
+                                      rideStatus === "completed" ? "Done" : "Status unknown"}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  )}
-                  <div className="absolute top-8 right-8 z-[600] flex flex-col gap-3">
-                    {(pickupCoords || dropoffCoords) && rideStatus === 'idle' && (
-                      <button onClick={handleReset} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Reset System</button>
-                    )}
-                    <div className="flex gap-3">
-                      {(pickupCoords && rideStatus === 'idle') && (
-                        <button onClick={handleUndo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Previous Step</button>
-                      )}
-                      {(redoStack.length > 0 && rideStatus === 'idle') && (
-                        <button onClick={handleRedo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Next Step</button>
-                      )}
-                    </div>
-                  </div>
-                  <div className="w-full h-full relative z-0">
-                    <MapContainer center={mapCenter} zoom={12} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
-                      <TileLayer
-                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                      />
-                      <MapResizer />
-                      <LocationMarker setPickupInput={setPickupInput} setPickupCoords={setPickupCoords} />
-                      <MapClickHandler onLocationSelect={handleMapClick} />
-                      <MapUpdater center={mapCenter} />
-                      <MapBoundsHandler
-                        pickup={rideStatus === 'searching' ? null : pickupCoords}
-                        dropoff={dropoffCoords}
-                        driver={driverLocation}
-                        status={rideStatus}
-                      />
-                      {pickupCoords && <Marker position={pickupCoords} icon={pickupIcon} />}
-                      {dropoffCoords && <Marker position={dropoffCoords} icon={dropoffIcon} />}
-                      {stableEndpoints.p && stableEndpoints.d && (
-                        <StableRoutePolyline
-                          pickup={stableEndpoints.p}
-                          dropoff={stableEndpoints.d}
-                          onRouteFound={setRouteSummary}
-                          // Gray during driver approach so amber driver route is the hero line; blue during trip
-                          color={['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) ? '#d1d5db' : '#3b82f6'}
-                        />
-                      )}
-                      {/* Live driver approach route — amber dashed line */}
-                      {driverLocation && ['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && pickupCoords && (
-                        <DriverRoutePolyline
-                          from={[driverLocation.lat, driverLocation.lng]}
-                          to={pickupCoords}
-                        />
-                      )}
-                      {/* During trip: route from driver to dropoff */}
-                      {driverLocation && rideStatus === 'ongoing' && dropoffCoords && (
-                        <DriverRoutePolyline
-                          from={[driverLocation.lat, driverLocation.lng]}
-                          to={dropoffCoords}
-                        />
-                      )}
-                      {driverLocation && <Marker position={[driverLocation.lat, driverLocation.lng]} icon={driverIcon} />}
-                    </MapContainer>
-                  </div>
-                </div>
-              </div>
-              {pickupCoords && dropoffCoords && (
-                <CabTypeSelector selectedCabType={selectedCabType} onSelectCabType={setSelectedCabType} distance={routeSummary ? `${routeSummary.distance} km` : null} />
-              )}
-            </div>
-
-            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-black/60 backdrop-blur-lg rounded-[40px] shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10 p-8 space-y-8 animate-in slide-in-from-right-8 duration-700">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">Prepare</h2>
-                  <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Initiate transit protocol</p>
-                </div>
-
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Origin Location</label>
-                    <LocationAutocomplete
-                      placeholder="Identify pickup point"
-                      value={pickupInput}
-                      onChange={setPickupInput}
-                      onSelect={(loc) => {
-                        setPickupCoords([loc.lat, loc.lng]);
-                        setPickupInput(loc.address);
-                        setSelectionMode('dropoff');
-                        setRouteSummary(null);
-                      }}
-                      className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Target Destination</label>
-                    <LocationAutocomplete
-                      placeholder="Specify dropoff point"
-                      value={dropoffInput}
-                      onChange={setDropoffInput}
-                      onSelect={(loc) => {
-                        setDropoffCoords([loc.lat, loc.lng]);
-                        setDropoffInput(loc.address);
-                        setSelectionMode('done');
-                        setRouteSummary(null);
-                      }}
-                      className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {routeSummary && (
-                  <div className="p-8 bg-gradient-to-br from-gray-800 to-gray-950 rounded-[2.5rem] text-white shadow-3xl border border-white/10 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                      <Zap className="w-16 h-16 text-primary fill-primary" />
-                    </div>
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="w-3 h-3 text-primary" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
+                        {(rideStatus === 'driver_assigned' || rideStatus === 'arriving' || rideStatus === 'arrived' || rideStatus === 'ongoing') && eta && (
+                          <div className="text-[10px] font-bold text-white/50 uppercase tracking-widest mt-1">
+                            {rideStatus === 'ongoing' ? 'Target ETA:' : 'Approach ETA:'} <span className="text-primary font-black">{eta} mins</span> • {distanceToPickup} km
+                          </div>
+                        )}
                       </div>
-                      <p className="text-5xl font-black text-white tracking-tighter">₹{Math.round(routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : 20))}</p>
-                      <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mt-2">Calculated Fare for {selectedCabType}</p>
+                    )}
+                    <div className="absolute top-8 right-8 z-[600] flex flex-col gap-3">
+                      {(pickupCoords || dropoffCoords) && rideStatus === 'idle' && (
+                        <button onClick={handleReset} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Reset System</button>
+                      )}
+                      <div className="flex gap-3">
+                        {(pickupCoords && rideStatus === 'idle') && (
+                          <button onClick={handleUndo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Previous Step</button>
+                        )}
+                        {(redoStack.length > 0 && rideStatus === 'idle') && (
+                          <button onClick={handleRedo} className="bg-primary/90 hover:bg-primary text-white border border-primary/20 px-8 py-3 rounded-2xl shadow-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300">Next Step</button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="w-full h-full relative z-0">
+                      <MapContainer center={mapCenter} zoom={12} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
+                        <TileLayer
+                          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        />
+                        <MapResizer />
+                        <LocationMarker setPickupInput={setPickupInput} setPickupCoords={setPickupCoords} />
+                        <MapClickHandler onLocationSelect={handleMapClick} />
+                        <MapUpdater center={mapCenter} />
+                        <MapBoundsHandler
+                          pickup={rideStatus === 'searching' ? null : pickupCoords}
+                          dropoff={dropoffCoords}
+                          driver={driverLocation}
+                          status={rideStatus}
+                        />
+                        {pickupCoords && <Marker position={pickupCoords} icon={pickupIcon} />}
+                        {dropoffCoords && <Marker position={dropoffCoords} icon={dropoffIcon} />}
+                        {stableEndpoints.p && stableEndpoints.d && (
+                          <StableRoutePolyline
+                            pickup={stableEndpoints.p}
+                            dropoff={stableEndpoints.d}
+                            onRouteFound={setRouteSummary}
+                            // Gray during driver approach so amber driver route is the hero line; blue during trip
+                            color={['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) ? '#d1d5db' : '#3b82f6'}
+                          />
+                        )}
+                        {/* Live driver approach route — amber dashed line */}
+                        {driverLocation && ['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && pickupCoords && (
+                          <DriverRoutePolyline
+                            from={[driverLocation.lat, driverLocation.lng]}
+                            to={pickupCoords}
+                          />
+                        )}
+                        {/* During trip: route from driver to dropoff */}
+                        {driverLocation && rideStatus === 'ongoing' && dropoffCoords && (
+                          <DriverRoutePolyline
+                            from={[driverLocation.lat, driverLocation.lng]}
+                            to={dropoffCoords}
+                          />
+                        )}
+                        {driverLocation && <Marker position={[driverLocation.lat, driverLocation.lng]} icon={driverIcon} />}
+                      </MapContainer>
                     </div>
                   </div>
-                )}
+                </div>
 
-                <Button
-                  onClick={handleBookRide}
-                  disabled={rideStatus !== "idle" || !routeSummary}
-                  className={`w-full py-10 rounded-[2rem] font-black text-xl uppercase tracking-widest shadow-[0_15px_40px_rgba(255,153,0,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-95
+                {/* Sidebar Section */}
+                <div className="lg:col-span-1 space-y-6 order-2 lg:order-1">
+                  <div className="bg-black/60 backdrop-blur-lg rounded-[40px] shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10 p-8 space-y-8 animate-in slide-in-from-right-8 duration-700">
+                    <div className="space-y-2">
+                      <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">Prepare</h2>
+                      <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Initiate transit protocol</p>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Origin Location</label>
+                        <LocationAutocomplete
+                          placeholder="Identify pickup point"
+                          value={pickupInput}
+                          onChange={setPickupInput}
+                          onSelect={(loc) => {
+                            setPickupCoords([loc.lat, loc.lng]);
+                            setPickupInput(loc.address);
+                            setSelectionMode('dropoff');
+                            setRouteSummary(null);
+                          }}
+                          className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Target Destination</label>
+                        <LocationAutocomplete
+                          placeholder="Specify dropoff point"
+                          value={dropoffInput}
+                          onChange={setDropoffInput}
+                          onSelect={(loc) => {
+                            setDropoffCoords([loc.lat, loc.lng]);
+                            setDropoffInput(loc.address);
+                            setSelectionMode('done');
+                            setRouteSummary(null);
+                          }}
+                          className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
+                        />
+                      </div>
+                    </div>
+
+                    {routeSummary && (
+                      <div className="p-8 bg-gradient-to-br from-gray-800 to-gray-950 rounded-[2.5rem] text-white shadow-3xl border border-white/10 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                          <Zap className="w-16 h-16 text-primary fill-primary" />
+                        </div>
+                        <div className="relative z-10">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock className="w-3 h-3 text-primary" />
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
+                          </div>
+                          <p className="text-5xl font-black text-white tracking-tighter">₹{Math.round(routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : 20))}</p>
+                          <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mt-2">Calculated Fare for {selectedCabType}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={handleBookRide}
+                      disabled={rideStatus !== "idle" || !routeSummary}
+                      className={`w-full py-10 rounded-[2rem] font-black text-xl uppercase tracking-widest shadow-[0_15px_40px_rgba(255,153,0,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-95
                     ${rideStatus === 'idle' ? 'bg-primary hover:bg-orange-600 text-white' : 'bg-white/10 text-white/40 cursor-not-allowed border border-white/10'}
                   `}
-                >
-                  {rideStatus === "idle" ? "Confirm Launch" :
-                    rideStatus === "searching" ? "Search" :
-                      rideStatus === "driver_assigned" ? "Booked" :
-                        rideStatus === "arriving" ? "Coming" :
-                          rideStatus === "arrived" ? "Here" :
-                            rideStatus === "ongoing" ? "Start" : "Processing..."}
-                </Button>
+                    >
+                      {rideStatus === "idle" ? "Confirm Launch" :
+                        rideStatus === "searching" ? "Search" :
+                          rideStatus === "driver_assigned" ? "Booked" :
+                            rideStatus === "arriving" ? "Coming" :
+                              rideStatus === "arrived" ? "Here" :
+                                rideStatus === "ongoing" ? "Start" : "Processing..."}
+                    </Button>
 
-                {['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
-                  <Button
-                    variant="outline"
-                    onClick={handleCancelRide}
-                    className="w-full py-8 rounded-[2rem] font-black text-[12px] uppercase tracking-[0.2em] text-white/40 border-white/10 hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-all duration-500 group overflow-hidden relative"
-                  >
-                    <div className="absolute inset-0 bg-red-600/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                    <span className="relative z-10 flex items-center gap-3">
-                      <XCircle className="w-4 h-4" /> Abort Mission
-                    </span>
-                  </Button>
-                )}
-
-                {rideStatus !== "idle" && (
-                  <div className="space-y-6 pt-8 border-t border-white/10">
-                    <div className="flex items-center justify-between px-2 mb-8 relative">
-                      <div className="absolute top-1.5 left-0 right-0 h-[2px] bg-white/5 z-0" />
-                      {[
-                        { key: 'searching', label: 'Search' },
-                        { key: 'driver_assigned', label: 'Booked' },
-                        { key: 'arriving', label: 'Coming' },
-                        { key: 'arrived', label: 'Here' },
-                        { key: 'ongoing', label: 'Start' },
-                        { key: 'completed', label: 'Done' }
-                      ].map((step) => {
-                        const allStatuses = ['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'];
-                        const isPast = allStatuses.indexOf(rideStatus) >= allStatuses.indexOf(step.key);
-                        const isCurrent = step.key === rideStatus;
-                        return (
-                          <div key={step.key} className="flex flex-col items-center flex-1 relative z-10">
-                            <div className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-500 ${isCurrent ? 'bg-primary border-primary ring-8 ring-primary/20 scale-125' : isPast ? 'bg-primary border-primary shadow-[0_0_10px_rgba(255,153,0,0.5)]' : 'bg-gray-900 border-white/20'}`} />
-                            <span className={`text-[8px] mt-3 font-black uppercase tracking-widest ${isCurrent ? 'text-primary' : isPast ? 'text-white/80' : 'text-white/20'}`}>{step.label}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {currentRide?.driver && (
-                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-700">
-                        <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6 backdrop-blur-lg">
-                          <div className="flex items-center gap-6">
-                            <div className="w-18 h-18 bg-white/10 rounded-3xl flex items-center justify-center shadow-2xl text-3xl relative border border-white/10">
-                              👤
-                              <div className="absolute -bottom-2 -right-2 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full border-4 border-[#1a1a1a] flex items-center gap-1 shadow-lg">
-                                <Star className="w-2.5 h-2.5 fill-white" /> {currentRide.driver.rating || '4.8'}
-                              </div>
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-black text-xl text-white tracking-tight leading-none mb-2">{currentRide.driver.name}</h4>
-                              <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em]">{currentRide.driver.vehicle || 'INTERCEPTOR SERIES'}</p>
-                              <div className="text-[11px] inline-block bg-primary/20 text-primary px-4 py-1 rounded-full font-black mt-3 border border-primary/20">
-                                XYZ-4567 • CARBON BLACK
-                              </div>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <a href={`tel:${currentRide.driver.phone}`} className="py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white flex items-center justify-center gap-3 hover:bg-green-500/20 hover:text-green-400 hover:border-green-500/30 transition-all duration-300">
-                              <Phone className="w-3.5 h-3.5" /> Call Ace
-                            </a>
-                            <button className="py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white flex items-center justify-center gap-3 hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/30 transition-all duration-300">
-                              <MessageSquare className="w-3.5 h-3.5" /> Comms
-                            </button>
-                          </div>
-                        </div>
-                        <div className="p-2 pt-0">
-                          <SOSButton onActivate={() => handleSOSActivate(currentRide._id || currentRide.rideId)} />
-                        </div>
-                      </div>
+                    {['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
+                      <Button
+                        variant="outline"
+                        onClick={handleCancelRide}
+                        className="w-full py-8 rounded-[2rem] font-black text-[12px] uppercase tracking-[0.2em] text-white/40 border-white/10 hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-all duration-500 group overflow-hidden relative"
+                      >
+                        <div className="absolute inset-0 bg-red-600/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                        <span className="relative z-10 flex items-center gap-3">
+                          <XCircle className="w-4 h-4" /> Abort Mission
+                        </span>
+                      </Button>
                     )}
+                  </div>
+                </div>
 
-                    {rideStatus === 'searching' && (
-                      <div className="text-center py-10 space-y-4">
-                        <div className="relative w-16 h-16 mx-auto">
-                          <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
-                          <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                {/* Full Width vehicle selection or Live Tracking Dashboard */}
+                {pickupCoords && dropoffCoords && (
+                  <div className="w-full animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                    {rideStatus === 'idle' ? (
+                      <CabTypeSelector selectedCabType={selectedCabType} onSelectCabType={setSelectedCabType} distance={routeSummary ? `${routeSummary.distance} km` : null} />
+                    ) : (
+                      <div className="bg-black/60 backdrop-blur-3xl rounded-[40px] border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.5)] p-8 md:p-10">
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-center">
+                          {/* Ride Status Progress */}
+                          <div className="lg:col-span-1 space-y-6">
+                            <div className="space-y-1">
+                              <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Live Tracking</h3>
+                              <p className="text-primary text-[9px] font-black uppercase tracking-[0.2rem]">Mission Progress Status</p>
+                            </div>
+                            <div className="flex items-center justify-between relative px-2">
+                              <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white/5 -translate-y-1/2" />
+                              {['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'].map((step, idx) => {
+                                const allStatuses = ['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'];
+                                const isPast = allStatuses.indexOf(rideStatus) >= allStatuses.indexOf(step);
+                                const isCurrent = step === rideStatus;
+                                return (
+                                  <div key={step} className="relative z-10 flex flex-col items-center">
+                                    <div className={`w-2.5 h-2.5 rounded-full border transition-all duration-500 ${isCurrent ? 'bg-primary border-primary ring-4 ring-primary/20 scale-125' : isPast ? 'bg-primary border-primary' : 'bg-gray-800 border-white/20'}`} />
+                                  </div>
+                                )
+                              })}
+                            </div>
+                            <p className="text-white font-black text-[10px] uppercase tracking-widest text-center bg-white/5 py-2 rounded-full border border-white/10">
+                              {rideStatus === "searching" ? "Scanning Fleet" :
+                                rideStatus === "driver_assigned" ? "Ace Assigned" :
+                                  rideStatus === "arriving" ? "Ace Incoming" :
+                                    rideStatus === "arrived" ? "Ace at Origin" :
+                                      rideStatus === "ongoing" ? "Target in Sight" : "Analysis Complete"}
+                            </p>
+                          </div>
+
+                          {/* Driver Details Card (Full width equivalent) */}
+                          <div className="lg:col-span-2">
+                            {currentRide?.driver ? (
+                              <div className="bg-white/5 rounded-[2.5rem] border border-white/10 p-6 flex items-center gap-8 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-primary/5 translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                                <div className="relative z-10 flex-shrink-0">
+                                  <div className="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center text-4xl shadow-2xl border border-white/10">
+                                    👤
+                                    <div className="absolute -bottom-2 -right-2 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full border-4 border-[#1a1a1a] flex items-center gap-1">
+                                      <Star className="w-2.5 h-2.5 fill-white" /> {currentRide.driver.rating || '4.8'}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="relative z-10 flex-1 flex justify-between items-center">
+                                  <div>
+                                    <h4 className="font-black text-2xl text-white tracking-tight mb-1">{currentRide.driver.name}</h4>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">{currentRide.driver.vehicle || 'INTERCEPTOR'}</span>
+                                      <span className="w-1 h-1 rounded-full bg-white/20" />
+                                      <span className="text-[11px] font-black text-primary">XYZ-4567 • CARBON BLACK</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-3">
+                                    <a href={`tel:${currentRide.driver.phone}`} className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-green-500/20 hover:text-green-400 hover:border-green-500/30 transition-all duration-300">
+                                      <Phone className="w-4 h-4" />
+                                    </a>
+                                    <button className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/30 transition-all duration-300">
+                                      <MessageSquare className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center h-32 space-y-4">
+                                <div className="relative w-12 h-12">
+                                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full" />
+                                  <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                </div>
+                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Synchronizing with nearby Aces...</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* SOS & Abort Buttons */}
+                          <div className="lg:col-span-1 space-y-4">
+                            <SOSButton onActivate={() => handleSOSActivate(currentRide?._id || currentRide?.rideId)} />
+                            {['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
+                              <button
+                                onClick={handleCancelRide}
+                                className="w-full py-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all duration-300"
+                              >
+                                Abort Mission
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em]">Scanning for available Aces...</p>
                       </div>
                     )}
                   </div>

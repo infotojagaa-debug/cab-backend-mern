@@ -505,8 +505,39 @@ function DriverDashboard() {
                             </div>
 
                             {activeRide.status === 'arrived' && (
-                                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 font-bold text-center text-sm flex items-center justify-center gap-2">
-                                    <CheckCircle className="w-4 h-4" /> Arrived at pickup point.
+                                <div className="mb-6 p-6 bg-amber-50 border-2 border-amber-200 rounded-[2rem] shadow-xl shadow-amber-900/5 animate-in zoom-in-95 duration-500">
+                                    <div className="flex items-center gap-3 mb-5">
+                                        <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-lg">
+                                            <ShieldAlert className="w-6 h-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Security Handshake</h4>
+                                            <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest">Verification Required</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                maxLength="4"
+                                                placeholder="ENTER PASSENGER OTP"
+                                                value={otpInput}
+                                                onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                                                className="w-full py-5 bg-white border-2 border-amber-200 rounded-2xl text-center text-3xl font-black text-gray-900 tracking-[0.5em] focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none placeholder:text-gray-300 placeholder:tracking-normal placeholder:text-[10px]"
+                                            />
+                                        </div>
+
+                                        <button
+                                            className="w-full py-5 rounded-2xl font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest"
+                                            onClick={handleStartTrip}
+                                        >
+                                            <Play className="w-5 h-5 fill-white" /> Start Mission
+                                        </button>
+                                        <p className="text-center text-[9px] font-bold text-amber-600 uppercase tracking-widest px-4">
+                                            Ask the passenger for their 4-digit security code
+                                        </p>
+                                    </div>
                                 </div>
                             )}
 
@@ -539,22 +570,9 @@ function DriverDashboard() {
                                     </button>
                                 )}
                                 {activeRide.status === 'arrived' && (
-                                    <div className="col-span-2 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                maxLength="4"
-                                                placeholder="ENTER 4-DIGIT OTP"
-                                                value={otpInput}
-                                                onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
-                                                className="w-full py-4 bg-gray-900 border-2 border-amber-400/50 rounded-xl text-center text-2xl font-black text-amber-400 tracking-[0.5em] focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none placeholder:text-gray-700 placeholder:tracking-normal placeholder:text-xs"
-                                            />
-                                            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 bg-white border border-gray-100 rounded-full">
-                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Verification Required</span>
-                                            </div>
-                                        </div>
-                                        <button className="w-full py-4 rounded-xl font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-400/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2" onClick={handleStartTrip}>
-                                            <Play className="w-4 h-4" /> Start Mission
+                                    <div className="col-span-1 opacity-50 cursor-not-allowed">
+                                        <button className="w-full py-4 rounded-xl font-bold text-gray-400 bg-gray-200 flex items-center justify-center gap-2" disabled>
+                                            <Play className="w-4 h-4 text-gray-300" /> Start
                                         </button>
                                     </div>
                                 )}

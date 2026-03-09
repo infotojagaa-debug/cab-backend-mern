@@ -15,7 +15,8 @@ const adminMiddleware = [verifyToken, checkRole(["admin"])];
 router.get("/stats", adminMiddleware, async (req, res) => {
     try {
         const totalUsers = await User.countDocuments({ role: "customer" });
-        const activeDrivers = await DriverProfile.countDocuments({ isOnline: true });
+        const activeDriversCount = await User.countDocuments({ role: "driver", status: "active" });
+        const onlineDriversCount = await DriverProfile.countDocuments({ isOnline: true, user: { $in: await User.find({ status: "active" }).distinct("_id") } });
 
         // Revenue aggregate (commission portion)
         let config = await AppConfig.findOne({ key: "global" });
@@ -26,7 +27,7 @@ router.get("/stats", adminMiddleware, async (req, res) => {
 
         res.json({
             totalUsers,
-            activeDrivers,
+            activeDrivers: onlineDriversCount,
             totalRevenue: Math.round(totalRevenue),
             totalRides: completedRides.length
         });
@@ -38,7 +39,7 @@ router.get("/stats", adminMiddleware, async (req, res) => {
 // GET /api/admin/drivers - List all drivers with their profiles
 router.get("/drivers", adminMiddleware, async (req, res) => {
     try {
-        const drivers = await User.find({ role: "driver" }).select("-password");
+        const drivers = await User.find({ role: "driver", status: "active" }).select("-password");
         const driversWithProfiles = await Promise.all(drivers.map(async (driver) => {
             const profile = await DriverProfile.findOne({ user: driver._id }).populate('vehicle');
             return {

@@ -172,7 +172,7 @@ function DriverDashboard() {
                             return prevIndex;
                         });
                     } else {
-                        // Emission for stationary states
+                        // Emission for stationary states (No animation yet)
                         if (socket?.connected && (activeRide.status === 'driver_assigned' || activeRide.status === 'arrived')) {
                             socket.emit("driverLocation", {
                                 driverId: user?.id,
@@ -181,7 +181,7 @@ function DriverDashboard() {
                             });
                         }
 
-                        // Fallback to linear movement for movement phases...
+                        // Fallback to linear movement ONLY for movement phases...
                         const targetLoc = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
                         if (!targetLoc || (activeRide.status !== 'arriving' && activeRide.status !== 'ongoing')) return;
 

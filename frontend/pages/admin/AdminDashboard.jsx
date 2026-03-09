@@ -342,7 +342,7 @@ export default function AdminDashboard() {
 
                     {activeTab === "grid" && (
                         <div className="w-full h-[calc(100vh-280px)] min-h-[600px] animate-in fade-in zoom-in-95 duration-700">
-                            <AdminMap focusLocation={focusLocation} allDrivers={allDrivers} activeRides={activeRides} />
+                            <AdminMap focusLocation={focusLocation} allDrivers={allDrivers.filter(d => d.status === 'active')} activeRides={activeRides} />
                         </div>
                     )}
 

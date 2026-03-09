@@ -39,7 +39,7 @@ router.get("/stats", adminMiddleware, async (req, res) => {
 // GET /api/admin/drivers - List all drivers with their profiles
 router.get("/drivers", adminMiddleware, async (req, res) => {
     try {
-        const drivers = await User.find({ role: "driver", status: "active" }).select("-password");
+        const drivers = await User.find({ role: "driver" }).select("-password");
         const driversWithProfiles = await Promise.all(drivers.map(async (driver) => {
             const profile = await DriverProfile.findOne({ user: driver._id }).populate('vehicle');
             return {

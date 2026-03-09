@@ -27,6 +27,7 @@ function DriverDashboard() {
     const [dailyMissions, setDailyMissions] = useState([]);
     const [showSuccessCard, setShowSuccessCard] = useState(false);
     const [lastEarnings, setLastEarnings] = useState(0);
+    const [otpInput, setOtpInput] = useState("");
 
     // --- Refs for Navigation ---
     const walletRef = React.useRef(null);
@@ -305,10 +306,16 @@ function DriverDashboard() {
     };
 
     const handleStartTrip = async () => {
+        if (!otpInput || otpInput.length < 4) {
+            return toast.error("Please enter the 4-digit OTP provided by the passenger.");
+        }
         try {
-            const success = await updateStatus(activeRide._id, "ongoing");
+            const success = await updateStatus(activeRide._id, "ongoing", { otp: otpInput });
             if (success) {
                 toast.success("Operational protocol verified. Mission start.");
+                setOtpInput(""); // Clear OTP on success
+            } else {
+                toast.error("Invalid OTP. Verification failed.");
             }
         } catch (error) {
             console.error("Trip start error:", error);
@@ -532,9 +539,24 @@ function DriverDashboard() {
                                     </button>
                                 )}
                                 {activeRide.status === 'arrived' && (
-                                    <button className="py-4 rounded-xl font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-400/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={handleStartTrip}>
-                                        <Play className="w-4 h-4" /> Start
-                                    </button>
+                                    <div className="col-span-2 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                maxLength="4"
+                                                placeholder="ENTER 4-DIGIT OTP"
+                                                value={otpInput}
+                                                onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                                                className="w-full py-4 bg-gray-900 border-2 border-amber-400/50 rounded-xl text-center text-2xl font-black text-amber-400 tracking-[0.5em] focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none placeholder:text-gray-700 placeholder:tracking-normal placeholder:text-xs"
+                                            />
+                                            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 bg-white border border-gray-100 rounded-full">
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Verification Required</span>
+                                            </div>
+                                        </div>
+                                        <button className="w-full py-4 rounded-xl font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 shadow-lg shadow-amber-400/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2" onClick={handleStartTrip}>
+                                            <Play className="w-4 h-4" /> Start Mission
+                                        </button>
+                                    </div>
                                 )}
                                 {activeRide.status === 'ongoing' && (
                                     <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg shadow-emerald-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={handleCompleteTrip}>

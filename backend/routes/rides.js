@@ -241,6 +241,19 @@ router.put("/:id/status", verifyToken, async (req, res) => {
       if (ride.driver.toString() !== req.user.id) {
         return res.status(403).json({ error: "Unauthorized" });
       }
+      // Logic for OTP Generation on Arrived
+      if (status === "arrived") {
+        ride.otp = Math.floor(1000 + Math.random() * 9000).toString();
+      }
+
+      // Logic for OTP Verification on Ongoing
+      if (status === "ongoing") {
+        const { otp } = req.body;
+        if (!otp || otp !== ride.otp) {
+          return res.status(401).json({ error: "Invalid OTP. Verification failed." });
+        }
+      }
+
       ride.status = status;
       if (status === "completed") {
         ride.completedAt = new Date();
@@ -286,7 +299,7 @@ router.put("/:id/status", verifyToken, async (req, res) => {
         const payload = {
           rideId: ride._id,
           status: status,
-          otp: ride.otp, // Include OTP for passenger display
+          otp: ride.otp, // Sync OTP to both parties
           message: `Ride status updated to ${status}`,
           driver: {
             id: req.user.id,

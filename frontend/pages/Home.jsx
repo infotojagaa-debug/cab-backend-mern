@@ -866,6 +866,23 @@ export default function Home() {
                                 <div className="text-[10px] font-black text-primary mt-2">XYZ-4567 • CARBON BLACK</div>
                               </div>
                             </div>
+
+                            {/* OTP Display Card */}
+                            {rideStatus === 'arrived' && currentRide?.otp && (
+                              <div className="relative z-10 bg-gradient-to-br from-primary/20 to-orange-500/10 border border-primary/30 p-5 rounded-3xl animate-in zoom-in-95 duration-500 overflow-hidden group/otp">
+                                <div className="absolute top-0 right-0 p-2 opacity-20">
+                                  <ShieldAlert className="w-12 h-12 text-primary rotate-12" />
+                                </div>
+                                <div className="text-center relative z-10">
+                                  <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em] mb-2 leading-none">Security Clearance Code</p>
+                                  <div className="text-4xl font-black text-white tracking-[0.3em] font-mono drop-shadow-[0_0_15px_rgba(255,153,0,0.5)]">
+                                    {currentRide.otp}
+                                  </div>
+                                  <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest mt-2">Share this with your driver to start</p>
+                                </div>
+                              </div>
+                            )}
+
                             <div className="grid grid-cols-2 gap-3 relative z-10">
                               <a href={`tel:${currentRide.driver.phone}`} className="py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[9px] uppercase tracking-widest text-white flex items-center justify-center gap-3 hover:bg-green-500/20 hover:text-green-400 hover:border-green-500/30 transition-all duration-300">
                                 <Phone className="w-3.5 h-3.5" /> Call Ace

@@ -725,12 +725,180 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-              {/* Main Map Hub */}
-              <div className="lg:col-span-3 space-y-8 order-1 lg:order-2">
-                {/* Map Border with Cinematic Glow */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Sidebar - Uber-Style */}
+              <div className="lg:col-span-4 space-y-6 order-2 lg:order-1">
+                <div className="bg-black/60 backdrop-blur-xl rounded-[40px] shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10 p-6 md:p-8 space-y-8 animate-in slide-in-from-left-8 duration-700">
+                  <div className="space-y-2">
+                    <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">
+                      {rideStatus === 'idle' ? 'Book a Ride' : 'Mission Status'}
+                    </h2>
+                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                      {rideStatus === 'idle' ? 'Identify pickup & target' : 'Live transit intelligence'}
+                    </p>
+                  </div>
+
+                  {rideStatus === 'idle' ? (
+                    <div className="space-y-8">
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Origin Location</label>
+                          <LocationAutocomplete
+                            placeholder="Identify pickup point"
+                            value={pickupInput}
+                            onChange={setPickupInput}
+                            onSelect={(loc) => {
+                              setPickupCoords([loc.lat, loc.lng]);
+                              setPickupInput(loc.address);
+                              setSelectionMode('dropoff');
+                              setRouteSummary(null);
+                            }}
+                            className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Target Destination</label>
+                          <LocationAutocomplete
+                            placeholder="Specify dropoff point"
+                            value={dropoffInput}
+                            onChange={setDropoffInput}
+                            onSelect={(loc) => {
+                              setDropoffCoords([loc.lat, loc.lng]);
+                              setDropoffInput(loc.address);
+                              setSelectionMode('done');
+                              setRouteSummary(null);
+                            }}
+                            className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
+                          />
+                        </div>
+                      </div>
+
+                      {pickupCoords && dropoffCoords && (
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                          <div className="pt-2 border-t border-white/10">
+                            <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-4">Select Fleet</label>
+                            <CabTypeSelector
+                              selectedCabType={selectedCabType}
+                              onSelectCabType={setSelectedCabType}
+                              distance={routeSummary ? `${routeSummary.distance} km` : null}
+                            />
+                          </div>
+
+                          {routeSummary && (
+                            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-950 rounded-[2rem] text-white shadow-3xl border border-white/10 relative overflow-hidden group">
+                              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                                <Zap className="w-12 h-12 text-primary fill-primary" />
+                              </div>
+                              <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Clock className="w-3 h-3 text-primary" />
+                                  <p className="text-[9px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
+                                </div>
+                                <p className="text-4xl font-black text-white tracking-tighter">₹{Math.round(routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : 20))}</p>
+                                <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mt-1">Total fare estimation</p>
+                              </div>
+                            </div>
+                          )}
+
+                          <Button
+                            onClick={handleBookRide}
+                            disabled={rideStatus !== "idle" || !routeSummary}
+                            className={`w-full py-8 rounded-2xl font-black text-lg uppercase tracking-widest shadow-[0_15px_40px_rgba(255,153,0,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-95
+                              ${rideStatus === 'idle' ? 'bg-primary hover:bg-orange-600 text-white' : 'bg-white/10 text-white/40 cursor-not-allowed border border-white/10'}
+                            `}
+                          >
+                            Launch Mission
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Integrated Tracking in Sidebar */
+                    <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
+                      {/* Ride Status Steps */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between relative px-2 mb-2">
+                          <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white/5 -translate-y-1/2" />
+                          {['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'].map((step) => {
+                            const allStatuses = ['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'];
+                            const isPast = allStatuses.indexOf(rideStatus) >= allStatuses.indexOf(step);
+                            const isCurrent = step === rideStatus;
+                            return (
+                              <div key={step} className="relative z-10">
+                                <div className={`w-2.5 h-2.5 rounded-full border transition-all duration-500 ${isCurrent ? 'bg-primary border-primary ring-4 ring-primary/20 scale-125' : isPast ? 'bg-primary border-primary' : 'bg-gray-800 border-white/20'}`} />
+                              </div>
+                            )
+                          })}
+                        </div>
+                        <div className="text-center bg-white/5 py-4 rounded-2xl border border-white/10">
+                          <p className="text-white font-black text-[11px] uppercase tracking-[0.2em]">
+                            {rideStatus === "searching" ? "Scanning Fleet" :
+                              rideStatus === "driver_assigned" ? "Ace Assigned" :
+                                rideStatus === "arriving" ? "Ace Incoming" :
+                                  rideStatus === "arrived" ? "Ace at Origin" :
+                                    rideStatus === "ongoing" ? "Target in Sight" : "Analysis Complete"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Driver Info Area */}
+                      {currentRide?.driver ? (
+                        <div className="space-y-6">
+                          <div className="p-6 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6 backdrop-blur-lg relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
+                            <div className="flex items-center gap-6 relative z-10">
+                              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center shadow-2xl text-2xl relative border border-white/10">
+                                👤
+                                <div className="absolute -bottom-2 -right-2 bg-primary text-white text-[9px] font-black px-2 py-0.5 rounded-full border-2 border-black flex items-center gap-1">
+                                  <Star className="w-2 h-2 fill-white" /> {currentRide.driver.rating || '4.8'}
+                                </div>
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-black text-lg text-white tracking-tight mb-1">{currentRide.driver.name}</h4>
+                                <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">{currentRide.driver.vehicle || 'INTERCEPTOR'}</p>
+                                <div className="text-[10px] font-black text-primary mt-2">XYZ-4567 • CARBON BLACK</div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3 relative z-10">
+                              <a href={`tel:${currentRide.driver.phone}`} className="py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[9px] uppercase tracking-widest text-white flex items-center justify-center gap-3 hover:bg-green-500/20 hover:text-green-400 hover:border-green-500/30 transition-all duration-300">
+                                <Phone className="w-3.5 h-3.5" /> Call Ace
+                              </a>
+                              <button className="py-4 bg-white/5 border border-white/10 rounded-2xl font-black text-[9px] uppercase tracking-widest text-white flex items-center justify-center gap-3 hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/30 transition-all duration-300">
+                                <MessageSquare className="w-3.5 h-3.5" /> Comms
+                              </button>
+                            </div>
+                          </div>
+                          <SOSButton onActivate={() => handleSOSActivate(currentRide?._id || currentRide?.rideId)} />
+                        </div>
+                      ) : rideStatus === 'searching' ? (
+                        <div className="text-center py-12 space-y-4 bg-white/5 rounded-[2.5rem] border border-white/10">
+                          <div className="relative w-12 h-12 mx-auto">
+                            <div className="absolute inset-0 border-2 border-primary/20 rounded-full" />
+                            <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          </div>
+                          <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Scoping nearby units...</p>
+                        </div>
+                      ) : null}
+
+                      {/* Cancel Logic */}
+                      {['searching', 'driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
+                        <Button
+                          variant="outline"
+                          onClick={handleCancelRide}
+                          className="w-full py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-white/40 border-white/10 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-500"
+                        >
+                          Abort Mission
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Side - Expanded Map */}
+              <div className="lg:col-span-8 space-y-8 order-1 lg:order-2">
                 <div className="relative p-1.5 rounded-[42px] bg-gradient-to-br from-primary via-orange-500 to-amber-600 shadow-[0_20px_60px_rgba(255,153,0,0.25)] transition-all duration-700 hover:shadow-[0_30px_80px_rgba(255,153,0,0.35)]">
-                  <div className="relative map-container-responsive overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
+                  <div className="relative h-[700px] md:h-[850px] overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
                     {rideStatus !== "idle" && (
                       <div className="absolute top-8 left-8 z-[600] bg-black/60 backdrop-blur-lg border border-white/20 px-8 py-4 rounded-3xl shadow-2xl flex flex-col gap-1 min-w-[240px] animate-in slide-in-from-top-4 duration-500">
                         <div className="flex items-center gap-4">
@@ -810,190 +978,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-
-                {/* Sidebar Section */}
-                <div className="lg:col-span-1 space-y-6 order-2 lg:order-1">
-                  <div className="bg-black/60 backdrop-blur-lg rounded-[40px] shadow-[0_25px_80px_rgba(0,0,0,0.5)] border border-white/10 p-8 space-y-8 animate-in slide-in-from-right-8 duration-700">
-                    <div className="space-y-2">
-                      <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">Prepare</h2>
-                      <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Initiate transit protocol</p>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div>
-                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Origin Location</label>
-                        <LocationAutocomplete
-                          placeholder="Identify pickup point"
-                          value={pickupInput}
-                          onChange={setPickupInput}
-                          onSelect={(loc) => {
-                            setPickupCoords([loc.lat, loc.lng]);
-                            setPickupInput(loc.address);
-                            setSelectionMode('dropoff');
-                            setRouteSummary(null);
-                          }}
-                          className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] block mb-3">Target Destination</label>
-                        <LocationAutocomplete
-                          placeholder="Specify dropoff point"
-                          value={dropoffInput}
-                          onChange={setDropoffInput}
-                          onSelect={(loc) => {
-                            setDropoffCoords([loc.lat, loc.lng]);
-                            setDropoffInput(loc.address);
-                            setSelectionMode('done');
-                            setRouteSummary(null);
-                          }}
-                          className="[&_input]:h-14 [&_input]:bg-white/5 [&_input]:border-white/10 [&_input]:text-white focus-within:[&_input]:text-gray-900 [&_input]:placeholder:text-white/20 [&_input]:rounded-2xl"
-                        />
-                      </div>
-                    </div>
-
-                    {routeSummary && (
-                      <div className="p-8 bg-gradient-to-br from-gray-800 to-gray-950 rounded-[2.5rem] text-white shadow-3xl border border-white/10 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                          <Zap className="w-16 h-16 text-primary fill-primary" />
-                        </div>
-                        <div className="relative z-10">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Clock className="w-3 h-3 text-primary" />
-                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
-                          </div>
-                          <p className="text-5xl font-black text-white tracking-tighter">₹{Math.round(routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : 20))}</p>
-                          <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mt-2">Calculated Fare for {selectedCabType}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={handleBookRide}
-                      disabled={rideStatus !== "idle" || !routeSummary}
-                      className={`w-full py-10 rounded-[2rem] font-black text-xl uppercase tracking-widest shadow-[0_15px_40px_rgba(255,153,0,0.3)] transition-all duration-300 hover:scale-[1.02] active:scale-95
-                    ${rideStatus === 'idle' ? 'bg-primary hover:bg-orange-600 text-white' : 'bg-white/10 text-white/40 cursor-not-allowed border border-white/10'}
-                  `}
-                    >
-                      {rideStatus === "idle" ? "Confirm Launch" :
-                        rideStatus === "searching" ? "Search" :
-                          rideStatus === "driver_assigned" ? "Booked" :
-                            rideStatus === "arriving" ? "Coming" :
-                              rideStatus === "arrived" ? "Here" :
-                                rideStatus === "ongoing" ? "Start" : "Processing..."}
-                    </Button>
-
-                    {['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
-                      <Button
-                        variant="outline"
-                        onClick={handleCancelRide}
-                        className="w-full py-8 rounded-[2rem] font-black text-[12px] uppercase tracking-[0.2em] text-white/40 border-white/10 hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-all duration-500 group overflow-hidden relative"
-                      >
-                        <div className="absolute inset-0 bg-red-600/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        <span className="relative z-10 flex items-center gap-3">
-                          <XCircle className="w-4 h-4" /> Abort Mission
-                        </span>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Full Width vehicle selection or Live Tracking Dashboard */}
-                {pickupCoords && dropoffCoords && (
-                  <div className="w-full animate-in fade-in slide-in-from-bottom-10 duration-1000">
-                    {rideStatus === 'idle' ? (
-                      <CabTypeSelector selectedCabType={selectedCabType} onSelectCabType={setSelectedCabType} distance={routeSummary ? `${routeSummary.distance} km` : null} />
-                    ) : (
-                      <div className="bg-black/60 backdrop-blur-3xl rounded-[40px] border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.5)] p-8 md:p-10">
-                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-center">
-                          {/* Ride Status Progress */}
-                          <div className="lg:col-span-1 space-y-6">
-                            <div className="space-y-1">
-                              <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Live Tracking</h3>
-                              <p className="text-primary text-[9px] font-black uppercase tracking-[0.2rem]">Mission Progress Status</p>
-                            </div>
-                            <div className="flex items-center justify-between relative px-2">
-                              <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-white/5 -translate-y-1/2" />
-                              {['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'].map((step, idx) => {
-                                const allStatuses = ['searching', 'driver_assigned', 'arriving', 'arrived', 'ongoing', 'completed'];
-                                const isPast = allStatuses.indexOf(rideStatus) >= allStatuses.indexOf(step);
-                                const isCurrent = step === rideStatus;
-                                return (
-                                  <div key={step} className="relative z-10 flex flex-col items-center">
-                                    <div className={`w-2.5 h-2.5 rounded-full border transition-all duration-500 ${isCurrent ? 'bg-primary border-primary ring-4 ring-primary/20 scale-125' : isPast ? 'bg-primary border-primary' : 'bg-gray-800 border-white/20'}`} />
-                                  </div>
-                                )
-                              })}
-                            </div>
-                            <p className="text-white font-black text-[10px] uppercase tracking-widest text-center bg-white/5 py-2 rounded-full border border-white/10">
-                              {rideStatus === "searching" ? "Scanning Fleet" :
-                                rideStatus === "driver_assigned" ? "Ace Assigned" :
-                                  rideStatus === "arriving" ? "Ace Incoming" :
-                                    rideStatus === "arrived" ? "Ace at Origin" :
-                                      rideStatus === "ongoing" ? "Target in Sight" : "Analysis Complete"}
-                            </p>
-                          </div>
-
-                          {/* Driver Details Card (Full width equivalent) */}
-                          <div className="lg:col-span-2">
-                            {currentRide?.driver ? (
-                              <div className="bg-white/5 rounded-[2.5rem] border border-white/10 p-6 flex items-center gap-8 relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-primary/5 translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
-                                <div className="relative z-10 flex-shrink-0">
-                                  <div className="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center text-4xl shadow-2xl border border-white/10">
-                                    👤
-                                    <div className="absolute -bottom-2 -right-2 bg-primary text-white text-[10px] font-black px-3 py-1 rounded-full border-4 border-[#1a1a1a] flex items-center gap-1">
-                                      <Star className="w-2.5 h-2.5 fill-white" /> {currentRide.driver.rating || '4.8'}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="relative z-10 flex-1 flex justify-between items-center">
-                                  <div>
-                                    <h4 className="font-black text-2xl text-white tracking-tight mb-1">{currentRide.driver.name}</h4>
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">{currentRide.driver.vehicle || 'INTERCEPTOR'}</span>
-                                      <span className="w-1 h-1 rounded-full bg-white/20" />
-                                      <span className="text-[11px] font-black text-primary">XYZ-4567 • CARBON BLACK</span>
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-3">
-                                    <a href={`tel:${currentRide.driver.phone}`} className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-green-500/20 hover:text-green-400 hover:border-green-500/30 transition-all duration-300">
-                                      <Phone className="w-4 h-4" />
-                                    </a>
-                                    <button className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-blue-500/20 hover:text-blue-400 hover:border-blue-500/30 transition-all duration-300">
-                                      <MessageSquare className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col items-center justify-center h-32 space-y-4">
-                                <div className="relative w-12 h-12">
-                                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full" />
-                                  <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                                </div>
-                                <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Synchronizing with nearby Aces...</p>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* SOS & Abort Buttons */}
-                          <div className="lg:col-span-1 space-y-4">
-                            <SOSButton onActivate={() => handleSOSActivate(currentRide?._id || currentRide?.rideId)} />
-                            {['searching', 'driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
-                              <button
-                                onClick={handleCancelRide}
-                                className="w-full py-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all duration-300"
-                              >
-                                Abort Mission
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>

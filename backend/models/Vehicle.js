@@ -26,7 +26,7 @@ const vehicleSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ["sedan", "suv", "hatchback", "luxury", "auto"],
+        enum: ["sedan", "suv", "hatchback", "luxury", "auto", "bike"],
         default: "sedan",
     },
     status: {

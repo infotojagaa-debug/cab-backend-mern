@@ -614,7 +614,7 @@ export default function Home() {
           dropoff: { address: dropoffInput, lat: dropoffCoords[0], lng: dropoffCoords[1] },
           cabType: selectedCabType,
           distance: routeSummary.distance,
-          fare: (routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : 20)).toFixed(0),
+          fare: (routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : selectedCabType === "SUV" ? 20 : selectedCabType === "Auto" ? 9 : 6)).toFixed(0),
           bookingType,
           scheduledDateTime: bookingType === "scheduled" ? scheduledDateTime : null,
         }),

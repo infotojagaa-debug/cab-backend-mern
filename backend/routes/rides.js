@@ -94,6 +94,7 @@ router.post("/", verifyToken, async (req, res) => {
         Sedan: 1.0,
         SUV: 1.4,
         Bike: 0.5,
+        Auto: 0.7,
       };
 
       const basePerKm = config.fares.perKm;

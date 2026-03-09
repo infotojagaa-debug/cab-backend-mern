@@ -50,7 +50,7 @@ const rideSchema = new mongoose.Schema({
     },
     cabType: {
         type: String,
-        enum: ["Mini", "Sedan", "SUV", "Bike"],
+        enum: ["Mini", "Sedan", "SUV", "Bike", "Auto"],
         default: "Sedan",
     },
     scheduledTime: {

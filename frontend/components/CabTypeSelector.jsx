@@ -25,6 +25,22 @@ const cabTypes = [
         ratePerKm: 20,
         description: "Spacious SUVs",
     },
+    {
+        id: "Auto",
+        name: "Auto",
+        icon: "🛺",
+        capacity: "3 seats",
+        ratePerKm: 9,
+        description: "Affordable auto rickshaws",
+    },
+    {
+        id: "Bike",
+        name: "Bike",
+        icon: "🏍️",
+        capacity: "1 seat",
+        ratePerKm: 6,
+        description: "Quick bike rides",
+    },
 ];
 
 export default function CabTypeSelector({ selectedCabType, onSelectCabType, distance }) {

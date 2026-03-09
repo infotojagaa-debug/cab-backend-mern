@@ -905,7 +905,7 @@ export default function Home() {
               {/* Right Side - Expanded Map */}
               <div className="lg:col-span-8 space-y-8 order-1 lg:order-2">
                 <div className="relative p-1.5 rounded-[42px] bg-gradient-to-br from-primary via-orange-500 to-amber-600 shadow-[0_20px_60px_rgba(255,153,0,0.25)] transition-all duration-700 hover:shadow-[0_30px_80px_rgba(255,153,0,0.35)]">
-                  <div className="relative h-[500px] md:h-[550px] overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
+                  <div className="relative h-[420px] md:h-[450px] overflow-hidden rounded-[38px] border-4 border-black/20 shadow-inner">
                     {rideStatus !== "idle" && (
                       <div className="absolute top-8 left-8 z-[600] bg-black/60 backdrop-blur-lg border border-white/20 px-8 py-4 rounded-3xl shadow-2xl flex flex-col gap-1 min-w-[240px] animate-in slide-in-from-top-4 duration-500">
                         <div className="flex items-center gap-4">
@@ -1047,9 +1047,9 @@ export default function Home() {
 
         <style>{`
           ${markerStyles}
-          .map-container-responsive { height: 500px; }
-          @media (max-width: 1024px) { .map-container-responsive { height: 400px; } }
-          @media (max-width: 768px) { .map-container-responsive { height: 300px; } }
+          .map-container-responsive { height: 420px; }
+          @media (max-width: 1024px) { .map-container-responsive { height: 350px; } }
+          @media (max-width: 768px) { .map-container-responsive { height: 250px; } }
         `}</style>
       </div>
     </div>

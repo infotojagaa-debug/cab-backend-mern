@@ -22,7 +22,7 @@ router.get("/active", verifyToken, async (req, res) => {
         ...rideObj.driver,
         vehicle: driverProfile?.vehicle || 'Standard Sedan',
         rating: driverProfile?.rating || 4.8,
-        location: driverProfile?.location
+        location: driverProfile?.currentLocation
       };
       return res.json(rideObj);
     }
@@ -199,7 +199,7 @@ router.put("/:id/status", verifyToken, async (req, res) => {
       updated = true;
 
       const driverProfile = await DriverProfile.findOne({ user: req.user.id });
-      const driverLocation = driverProfile?.location || { lat: 13.0827, lng: 80.2707 };
+      const driverLocation = driverProfile?.currentLocation || { lat: 13.0827, lng: 80.2707 };
 
       const io = req.app.get('io');
       if (io) {
@@ -290,7 +290,7 @@ router.put("/:id/status", verifyToken, async (req, res) => {
           message: `Ride status updated to ${status}`,
           driver: {
             id: req.user.id,
-            location: await DriverProfile.findOne({ user: req.user.id }).then(p => p?.location)
+            location: await DriverProfile.findOne({ user: req.user.id }).then(p => p?.currentLocation)
           }
         };
 

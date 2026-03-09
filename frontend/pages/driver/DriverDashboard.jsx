@@ -124,8 +124,8 @@ function DriverDashboard() {
         if (isOnline) {
             interval = setInterval(() => {
                 const currentLoc = locationRef.current;
-                // If there's an active ride and it's in a movement phase (arriving or ongoing)
-                if (activeRide && (activeRide.status === "arriving" || activeRide.status === "ongoing")) {
+                // If there's an active ride and it's in a state where the customer needs to see the driver
+                if (activeRide && ["driver_assigned", "arriving", "arrived", "ongoing"].includes(activeRide.status)) {
                     // Check for auto-arrival if we are arriving at pickup
                     if (activeRide.status === "arriving") {
                         const distToPickup = Math.sqrt(
@@ -172,9 +172,18 @@ function DriverDashboard() {
                             return prevIndex;
                         });
                     } else {
-                        // Fallback to linear movement...
+                        // Emission for stationary states
+                        if (socket?.connected && (activeRide.status === 'driver_assigned' || activeRide.status === 'arrived')) {
+                            socket.emit("driverLocation", {
+                                driverId: user?.id,
+                                rideId: activeRide?._id,
+                                location: location
+                            });
+                        }
+
+                        // Fallback to linear movement for movement phases...
                         const targetLoc = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
-                        if (!targetLoc) return;
+                        if (!targetLoc || (activeRide.status !== 'arriving' && activeRide.status !== 'ongoing')) return;
 
                         setLocation(prev => {
                             const step = 0.002;

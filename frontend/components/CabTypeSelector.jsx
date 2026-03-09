@@ -52,7 +52,7 @@ export default function CabTypeSelector({ selectedCabType, onSelectCabType, dist
                 </h3>
                 <p className="text-white/30 text-[9px] font-black uppercase tracking-[0.2em]">Deployment Tier Selection</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
                 {cabTypes.map((cab) => {
                     const isSelected = selectedCabType === cab.id;
                     const estimatedFare = distance
@@ -64,65 +64,68 @@ export default function CabTypeSelector({ selectedCabType, onSelectCabType, dist
                             key={cab.id}
                             onClick={() => onSelectCabType(cab.id)}
                             className={`
-                relative flex flex-col items-center text-center gap-3 md:gap-6 p-4 md:p-8 rounded-[24px] md:rounded-[32px] border transition-all duration-500 w-full overflow-hidden group
+                relative flex flex-col items-center justify-between text-center p-5 md:p-6 rounded-[32px] border transition-all duration-500 w-full aspect-[4/5] sm:aspect-square overflow-hidden group
                 ${isSelected
-                                    ? "border-primary bg-primary/10 shadow-[0_15px_40px_rgba(255,153,0,0.2)] scale-105"
+                                    ? "border-primary bg-primary/10 shadow-[0_20px_50px_rgba(255,153,0,0.25)] scale-105"
                                     : "border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] shadow-2xl"
                                 }
               `}
                         >
                             {/* Cinematic Background Gradient for active state */}
                             {isSelected && (
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-orange-500/10 to-transparent animate-plus-pulse" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-orange-500/15 to-transparent animate-plus-pulse" />
                             )}
 
                             {/* Selected checkmark badge */}
                             {isSelected && (
-                                <div className="absolute top-2 right-2 md:top-4 md:right-4 w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-white/20 z-20">
-                                    <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg border-2 border-white/20 z-20 animate-in zoom-in-50 duration-300">
+                                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
                             )}
 
-                            {/* Icon bubble */}
-                            <div className={`
-                                w-12 h-12 md:w-20 md:h-20 rounded-[16px] md:rounded-[24px] flex items-center justify-center text-3xl md:text-5xl transition-all duration-500 relative z-10
-                                ${isSelected ? "bg-primary shadow-[0_0_30px_rgba(255,153,0,0.3)] scale-110" : "bg-black/20 group-hover:scale-110 shadow-inner"}
-                            `}>
-                                {cab.icon}
+                            {/* Content Wrapper */}
+                            <div className="flex flex-col items-center gap-2 md:gap-3 relative z-10 w-full pt-2">
+                                {/* Icon bubble */}
+                                <div className={`
+                                    w-14 h-14 md:w-16 md:h-16 rounded-[20px] flex items-center justify-center text-4xl md:text-5xl transition-all duration-500
+                                    ${isSelected ? "bg-primary shadow-[0_0_30px_rgba(255,153,0,0.4)] scale-110" : "bg-black/20 group-hover:scale-110 shadow-inner"}
+                                `}>
+                                    {cab.icon}
+                                </div>
+
+                                {/* Name + details */}
+                                <div className="space-y-0.5 md:space-y-1 w-full overflow-hidden">
+                                    <h3 className={`text-base md:text-lg font-black leading-none uppercase tracking-tight truncate ${isSelected ? "text-primary" : "text-white"}`}>
+                                        {cab.name}
+                                    </h3>
+                                    <p className={`text-[9px] font-black uppercase tracking-widest leading-none ${isSelected ? "text-white/70" : "text-white/30"}`}>
+                                        {cab.capacity}
+                                    </p>
+                                    <p className={`text-[8px] font-bold uppercase tracking-tighter leading-tight line-clamp-2 px-1 ${isSelected ? "text-white/40" : "text-white/10"}`}>
+                                        {cab.description}
+                                    </p>
+                                </div>
                             </div>
 
-                            {/* Name + description */}
-                            <div className="space-y-0.5 md:space-y-1 relative z-10">
-                                <h3 className={`text-sm md:text-xl font-black leading-tight uppercase tracking-tight ${isSelected ? "text-primary" : "text-white"}`}>
-                                    {cab.name}
-                                </h3>
-                                <p className={`text-[8px] md:text-[10px] font-black uppercase tracking-widest ${isSelected ? "text-white/60" : "text-white/20"}`}>
-                                    {cab.capacity}
-                                </p>
-                                <p className={`hidden md:block text-[9px] font-black uppercase tracking-widest ${isSelected ? "text-white/40" : "text-white/10"}`}>
-                                    {cab.description}
-                                </p>
-                            </div>
-
-                            {/* Pricing */}
-                            <div className={`w-full pt-3 md:pt-6 border-t relative z-10 ${isSelected ? "border-primary/30" : "border-white/5"}`}>
-                                <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-1 md:gap-0">
-                                    <div className="text-center md:text-left">
-                                        <p className={`text-[7px] md:text-[8px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] mb-0.5 md:mb-1 ${isSelected ? "text-primary" : "text-white/20"}`}>
+                            {/* Pricing Section */}
+                            <div className={`w-full pt-3 border-t relative z-10 ${isSelected ? "border-primary/30" : "border-white/10"}`}>
+                                <div className="flex justify-between items-end">
+                                    <div className="text-left">
+                                        <p className={`text-[7px] font-black uppercase tracking-widest ${isSelected ? "text-primary" : "text-white/20"}`}>
                                             Base
                                         </p>
-                                        <p className={`text-xs md:text-base font-black ${isSelected ? "text-white" : "text-white/80"}`}>
-                                            ₹{cab.ratePerKm}<span className="text-[8px] md:text-[10px] text-white/30">/km</span>
+                                        <p className={`text-sm font-black whitespace-nowrap ${isSelected ? "text-white" : "text-white/80"}`}>
+                                            ₹{cab.ratePerKm}<span className="text-[9px] text-white/30 font-bold">/km</span>
                                         </p>
                                     </div>
                                     {estimatedFare && (
-                                        <div className="text-center md:text-right">
-                                            <p className={`text-[7px] md:text-[8px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] mb-0.5 md:mb-1 ${isSelected ? "text-primary" : "text-white/20"}`}>
-                                                Est.
+                                        <div className="text-right">
+                                            <p className={`text-[7px] font-black uppercase tracking-widest ${isSelected ? "text-primary" : "text-white/20"}`}>
+                                                Mission
                                             </p>
-                                            <p className={`text-base md:text-2xl font-black ${isSelected ? "text-white" : "text-primary"}`}>
+                                            <p className={`text-xl font-black leading-none ${isSelected ? "text-white" : "text-primary"}`}>
                                                 ₹{estimatedFare}
                                             </p>
                                         </div>

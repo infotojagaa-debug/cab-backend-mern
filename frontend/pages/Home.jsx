@@ -980,7 +980,7 @@ export default function Home() {
                           {/* SOS & Abort Buttons */}
                           <div className="lg:col-span-1 space-y-4">
                             <SOSButton onActivate={() => handleSOSActivate(currentRide?._id || currentRide?.rideId)} />
-                            {['driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
+                            {['searching', 'driver_assigned', 'arriving', 'arrived'].includes(rideStatus) && (
                               <button
                                 onClick={handleCancelRide}
                                 className="w-full py-4 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all duration-300"

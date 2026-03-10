@@ -331,6 +331,11 @@ export default function Home() {
   const lastEtaRequestRef = useRef(0);
   const lastBoundsUpdateRef = useRef(0);
 
+  const getFareRate = (type) => {
+    const rates = { Mini: 12, Sedan: 15, SUV: 20, Auto: 9, Bike: 6 };
+    return rates[type] || 20;
+  };
+
   useEffect(() => {
     if (contextActiveRide) {
       setCurrentRide(contextActiveRide);
@@ -615,15 +620,7 @@ export default function Home() {
           pickup: { address: pickupInput, lat: pickupCoords[0], lng: pickupCoords[1] },
           dropoff: { address: dropoffInput, lat: dropoffCoords[0], lng: dropoffCoords[1] },
           cabType: selectedCabType,
-          distance: routeSummary.distance,
-          fare: (routeSummary.distance * (
-            selectedCabType === "Mini" ? 12 :
-              selectedCabType === "Sedan" ? 15 :
-                selectedCabType === "SUV" ? 20 :
-                  selectedCabType === "Auto" ? 9 :
-                    6 // Bike
-          )).toFixed(0),
-          bookingType,
+          fare: (routeSummary.distance * getFareRate(selectedCabType)).toFixed(0),
           scheduledDateTime: bookingType === "scheduled" ? scheduledDateTime : null,
         }),
       });
@@ -808,13 +805,7 @@ export default function Home() {
                                   <p className="text-[9px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
                                 </div>
                                 <p className="text-4xl font-black text-white tracking-tighter">
-                                  ₹{Math.round(routeSummary.distance * (
-                                    selectedCabType === "Mini" ? 12 :
-                                      selectedCabType === "Sedan" ? 15 :
-                                        selectedCabType === "SUV" ? 20 :
-                                          selectedCabType === "Auto" ? 9 :
-                                            6 // Bike
-                                  ))}
+                                  ₹{Math.round(routeSummary.distance * getFareRate(selectedCabType))}
                                 </p>
                                 <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mt-1">Total fare estimation</p>
                               </div>

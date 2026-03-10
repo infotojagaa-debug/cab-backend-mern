@@ -174,43 +174,14 @@ function DriverDashboard() {
                             return prevIndex;
                         });
                     } else {
-                        // Emission for stationary states (No animation yet)
-                        if (socket?.connected && (activeRide.status === 'driver_assigned' || activeRide.status === 'arrived')) {
+                        // Emission for stationary states (No animation until route is ready)
+                        if (socket?.connected && (activeRide.status === 'driver_assigned' || activeRide.status === 'arrived' || activeRide.status === 'arriving' || activeRide.status === 'ongoing')) {
                             socket.emit("driverLocation", {
                                 driverId: user?.id,
                                 rideId: activeRide?._id,
                                 location: location
                             });
                         }
-
-                        // Fallback to linear movement ONLY for movement phases...
-                        const targetLoc = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
-                        if (!targetLoc || (activeRide.status !== 'arriving' && activeRide.status !== 'ongoing')) return;
-
-                        setLocation(prev => {
-                            const step = 0.002;
-                            const latDiff = targetLoc.lat - prev.lat;
-                            const lngDiff = targetLoc.lng - prev.lng;
-                            const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
-
-                            if (distance < step) {
-                                const finalLoc = { lat: targetLoc.lat, lng: targetLoc.lng };
-                                if (socket?.connected) {
-                                    socket.emit("driverLocation", { driverId: user?.id, rideId: activeRide?._id, location: finalLoc });
-                                }
-                                return finalLoc;
-                            }
-
-                            const newLoc = {
-                                lat: prev.lat + (latDiff / distance) * step,
-                                lng: prev.lng + (lngDiff / distance) * step
-                            };
-
-                            if (socket?.connected) {
-                                socket.emit("driverLocation", { driverId: user?.id, rideId: activeRide?._id, location: newLoc });
-                            }
-                            return newLoc;
-                        });
                     }
                 } else {
                     // Just track if idle (No active ride)
@@ -241,14 +212,16 @@ function DriverDashboard() {
 
         const newTarget = activeRide.status === 'ongoing' ? activeRide.dropoff : activeRide.pickup;
 
-        if (!routeTarget || routeTarget.lat !== newTarget.lat || routeTarget.lng !== newTarget.lng) {
+        // Only reset if the actual destination coordinates changed or it's a completely different ride
+        const targetChanged = !routeTarget || routeTarget.lat !== newTarget.lat || routeTarget.lng !== newTarget.lng;
+
+        if (targetChanged) {
             console.log("Simulator: Target switched to", activeRide.status === 'ongoing' ? 'Dropoff' : 'Pickup');
             setRouteTarget(newTarget);
             setRouteCoords([]);
             setCurrentRouteIndex(0);
 
             // Set stable endpoints for the Route line (RoutingMachine)
-            // This prevents the line from re-initializing every time the driver moves
             if (activeRide.status === 'ongoing') {
                 setStableEndpoints({
                     start: [activeRide.pickup.lat, activeRide.pickup.lng],
@@ -261,7 +234,7 @@ function DriverDashboard() {
                 });
             }
         }
-    }, [activeRide?.status, activeRide?._id]);
+    }, [activeRide?._id, activeRide?.status, activeRide?.pickup?.lat, activeRide?.pickup?.lng, activeRide?.dropoff?.lat, activeRide?.dropoff?.lng]);
 
     useEffect(() => {
         if (!socket?.connected) return;

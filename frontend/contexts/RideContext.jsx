@@ -86,6 +86,10 @@ export const RideProvider = ({ children }) => {
         });
 
         socket.on("driverLocationUpdate", (location) => {
+            // Drivers should not update their own activeRide state from socket events
+            // as it causes circular updates and performance lag.
+            if (user?.role === "driver") return;
+
             console.log("RideContext: Driver location update:", location);
             if (activeRide) {
                 setActiveRide(prev => ({ ...prev, driverLocation: location }));

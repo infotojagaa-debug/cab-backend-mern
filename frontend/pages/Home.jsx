@@ -616,7 +616,13 @@ export default function Home() {
           dropoff: { address: dropoffInput, lat: dropoffCoords[0], lng: dropoffCoords[1] },
           cabType: selectedCabType,
           distance: routeSummary.distance,
-          fare: (routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : selectedCabType === "SUV" ? 20 : selectedCabType === "Auto" ? 9 : 6)).toFixed(0),
+          fare: (routeSummary.distance * (
+            selectedCabType === "Mini" ? 12 :
+              selectedCabType === "Sedan" ? 15 :
+                selectedCabType === "SUV" ? 20 :
+                  selectedCabType === "Auto" ? 9 :
+                    6 // Bike
+          )).toFixed(0),
           bookingType,
           scheduledDateTime: bookingType === "scheduled" ? scheduledDateTime : null,
         }),
@@ -801,7 +807,15 @@ export default function Home() {
                                   <Clock className="w-3 h-3 text-primary" />
                                   <p className="text-[9px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
                                 </div>
-                                <p className="text-4xl font-black text-white tracking-tighter">₹{Math.round(routeSummary.distance * (selectedCabType === "Mini" ? 12 : selectedCabType === "Sedan" ? 15 : 20))}</p>
+                                <p className="text-4xl font-black text-white tracking-tighter">
+                                  ₹{Math.round(routeSummary.distance * (
+                                    selectedCabType === "Mini" ? 12 :
+                                      selectedCabType === "Sedan" ? 15 :
+                                        selectedCabType === "SUV" ? 20 :
+                                          selectedCabType === "Auto" ? 9 :
+                                            6 // Bike
+                                  ))}
+                                </p>
                                 <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mt-1">Total fare estimation</p>
                               </div>
                             </div>

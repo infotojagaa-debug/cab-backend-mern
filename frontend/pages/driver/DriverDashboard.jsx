@@ -28,6 +28,7 @@ function DriverDashboard() {
     const [showSuccessCard, setShowSuccessCard] = useState(false);
     const [lastEarnings, setLastEarnings] = useState(0);
     const [otpInput, setOtpInput] = useState("");
+    const [otpError, setOtpError] = useState(null);
 
     // --- Refs for Navigation ---
     const walletRef = React.useRef(null);
@@ -283,6 +284,7 @@ function DriverDashboard() {
     // Clear OTP Input on ride change
     useEffect(() => {
         setOtpInput("");
+        setOtpError(null);
     }, [activeRide?._id]);
 
     // Sync isOnline with socket
@@ -319,11 +321,14 @@ function DriverDashboard() {
             if (success) {
                 toast.success("Operational protocol verified. Mission start.");
                 setOtpInput(""); // Clear OTP on success
+                setOtpError(null);
             } else {
+                setOtpError(error || "Invalid OTP. Verification failed.");
                 toast.error(error || "Invalid OTP. Verification failed.");
             }
         } catch (error) {
             console.error("Trip start error:", error);
+            setOtpError("An error occurred during verification");
             toast.error("An error occurred during verification");
         }
     };
@@ -529,9 +534,19 @@ function DriverDashboard() {
                                                 maxLength="4"
                                                 placeholder="ENTER PASSENGER OTP"
                                                 value={otpInput}
-                                                onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
-                                                className="w-full py-5 bg-white border-2 border-amber-200 rounded-2xl text-center text-3xl font-black text-gray-900 tracking-[0.5em] focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all outline-none placeholder:text-gray-300 placeholder:tracking-normal placeholder:text-[10px]"
+                                                onChange={(e) => {
+                                                    setOtpInput(e.target.value.replace(/\D/g, ''));
+                                                    if (otpError) setOtpError(null);
+                                                }}
+                                                className={`w-full py-5 bg-white border-2 rounded-2xl text-center text-3xl font-black tracking-[0.5em] focus:ring-4 transition-all outline-none placeholder:text-gray-300 placeholder:tracking-normal placeholder:text-[10px]
+                                                    ${otpError ? 'border-red-500 text-red-600 focus:ring-red-500/10' : 'border-amber-200 text-gray-900 focus:border-amber-500 focus:ring-amber-500/10'}
+                                                `}
                                             />
+                                            {otpError && (
+                                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 translate-y-full bg-red-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-300 whitespace-nowrap z-20">
+                                                    {otpError.toUpperCase()}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <button

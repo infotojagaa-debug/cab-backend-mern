@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, Search, History } from "lucide-react";
+import { MapPin, Loader2, Search, History, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getApiUrl } from "@/utils/api";
 
@@ -29,10 +29,11 @@ export default function LocationAutocomplete({
     const [inputValue, setInputValue] = useState(value);
     const [suggestions, setSuggestions] = useState([]);
     const [recentSearches, setRecentSearches] = useState([]);
+    const [fetchError, setFetchError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
-    const debouncedQuery = useDebounce(inputValue, 400);
+    const debouncedQuery = useDebounce(inputValue, 500);
     const wrapperRef = useRef(null);
 
     // Sync with external value
@@ -57,22 +58,44 @@ export default function LocationAutocomplete({
             const query = debouncedQuery?.trim();
             if (!query || query.length < 3) {
                 setSuggestions([]);
+                setFetchError(null);
                 return;
             }
 
             setIsLoading(true);
+            setFetchError(null);
             try {
-                const response = await fetch(getApiUrl(`/api/geocoding/search?q=${encodeURIComponent(query)}&limit=5`));
+                const url = getApiUrl(`/api/geocoding/search?q=${encodeURIComponent(query)}&limit=8`);
+                console.log(`🌍 Fetching suggestions: ${url}`);
+
+                const response = await fetch(url);
+                const contentType = response.headers.get("content-type");
+
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error(`Geocoding fetch error (${response.status}):`, errorText);
+                    let errorMsg = `Server Error (${response.status})`;
+                    try {
+                        const errData = await response.json();
+                        errorMsg = errData.details || errData.error || errorMsg;
+                    } catch (e) { /* ignore */ }
+
+                    console.error("❌ Geocoding fetch failed:", errorMsg);
+                    setFetchError(errorMsg);
                     setSuggestions([]);
                     return;
                 }
+
+                if (!contentType || !contentType.includes("application/json")) {
+                    console.error("❌ Geocoding received non-JSON response");
+                    setFetchError("Invalid server response format");
+                    setSuggestions([]);
+                    return;
+                }
+
                 const data = await response.json();
-                setSuggestions(data);
+                setSuggestions(Array.isArray(data) ? data : []);
             } catch (error) {
-                console.error("Geocoding fetch error:", error);
+                console.error("❌ Geocoding network error:", error);
+                setFetchError(error.message || "Network request failed");
                 setSuggestions([]);
             } finally {
                 setIsLoading(false);
@@ -254,10 +277,16 @@ export default function LocationAutocomplete({
                                             </button>
                                         ))}
                                     </div>
+                                ) : fetchError ? (
+                                    <div className="p-8 text-center">
+                                        <AlertCircle className="w-8 h-8 text-destructive/50 mx-auto mb-2" />
+                                        <p className="text-sm text-destructive font-bold uppercase tracking-widest">Search Failed</p>
+                                        <p className="text-[10px] text-gray-400 font-medium mt-1">{fetchError}</p>
+                                    </div>
                                 ) : !isLoading && (
                                     <div className="p-8 text-center">
                                         <Search className="w-8 h-8 text-gray-100 mx-auto mb-2" />
-                                        <p className="text-sm text-gray-400 font-bold">No results found</p>
+                                        <p className="text-sm text-gray-400 font-bold uppercase tracking-widest">No results found</p>
                                     </div>
                                 )}
                             </>

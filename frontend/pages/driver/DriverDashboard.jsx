@@ -135,7 +135,7 @@ function DriverDashboard() {
                         );
                         if (distToPickup < 0.0005) { // ~50 meters approx
                             console.log("Auto-Arrival: Within 50m of pickup");
-                            updateStatus(activeRide._id, "arrived");
+                            updateStatus(activeRide._id, "arrived").catch(console.error);
                         }
                     }
 
@@ -280,6 +280,11 @@ function DriverDashboard() {
         };
     }, [socket, setActiveRide]);
 
+    // Clear OTP Input on ride change
+    useEffect(() => {
+        setOtpInput("");
+    }, [activeRide?._id]);
+
     // Sync isOnline with socket
     useEffect(() => {
         if (isOnline === null || !socket?.connected || !user?.id) return;
@@ -310,21 +315,22 @@ function DriverDashboard() {
             return toast.error("Please enter the 4-digit OTP provided by the passenger.");
         }
         try {
-            const success = await updateStatus(activeRide._id, "ongoing", { otp: otpInput });
+            const { success, error } = await updateStatus(activeRide._id, "ongoing", { otp: otpInput });
             if (success) {
                 toast.success("Operational protocol verified. Mission start.");
                 setOtpInput(""); // Clear OTP on success
             } else {
-                toast.error("Invalid OTP. Verification failed.");
+                toast.error(error || "Invalid OTP. Verification failed.");
             }
         } catch (error) {
             console.error("Trip start error:", error);
+            toast.error("An error occurred during verification");
         }
     };
 
 
     const handleCompleteTrip = async () => {
-        const success = await updateStatus(activeRide._id, "completed");
+        const { success, error } = await updateStatus(activeRide._id, "completed");
         if (success) {
             const earned = activeRide.fare * 0.8; // 20% Commission
             setEarnings(prev => ({ ...prev, daily: prev.daily + earned }));
@@ -560,12 +566,12 @@ function DriverDashboard() {
                                     <Phone className="w-4 h-4" /> Call
                                 </button>
                                 {activeRide.status === 'driver_assigned' && (
-                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arriving")}>
+                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arriving").catch(console.error)}>
                                         <Navigation className="w-4 h-4" /> Coming
                                     </button>
                                 )}
                                 {activeRide.status === 'arriving' && (
-                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 shadow-lg shadow-indigo-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arrived")}>
+                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 shadow-lg shadow-indigo-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arrived").catch(console.error)}>
                                         <MapPin className="w-4 h-4" /> Here
                                     </button>
                                 )}

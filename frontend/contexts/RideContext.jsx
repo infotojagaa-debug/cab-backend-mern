@@ -155,19 +155,22 @@ export const RideProvider = ({ children }) => {
                 body: JSON.stringify({ status, ...data })
             });
 
+            const resultData = await res.json().catch(() => ({}));
+
             if (res.ok) {
-                const updatedRide = await res.json();
-                setActiveRide(updatedRide);
+                setActiveRide(resultData);
                 if (status === "completed") {
                     socketRef.current.emit("rideCompleted", { rideId });
                     setActiveRide(null);
                 }
-                return true;
+                return { success: true };
+            } else {
+                return { success: false, error: resultData.error || "Update failed" };
             }
         } catch (err) {
             console.error("Error updating status", err);
+            return { success: false, error: err.message || "Network error" };
         }
-        return false;
     };
 
 

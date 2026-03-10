@@ -488,93 +488,95 @@ function DriverDashboard() {
                                 </span>
                             </div>
 
-                            {activeRide.status === 'arrived' && (
-                                <div className="mb-6 p-6 bg-amber-50 border-2 border-amber-200 rounded-[2rem] shadow-xl shadow-amber-900/5 animate-in zoom-in-95 duration-500">
-                                    <div className="flex items-center gap-3 mb-5">
-                                        <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-lg">
-                                            <ShieldAlert className="w-6 h-6 text-white" />
+                            <div className="dd-active-ride-content">
+                                {activeRide.status === 'arrived' && (
+                                    <div className="mb-6 p-6 bg-amber-50 border-2 border-amber-200 rounded-[2rem] shadow-xl shadow-amber-900/5 animate-in zoom-in-95 duration-500">
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-lg">
+                                                <ShieldAlert className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Security Handshake</h4>
+                                                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest">Verification Required</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="text-sm font-black text-amber-900 uppercase tracking-tight">Security Handshake</h4>
-                                            <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest">Verification Required</p>
-                                        </div>
-                                    </div>
 
-                                    <div className="space-y-4">
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                maxLength="4"
-                                                placeholder="ENTER PASSENGER OTP"
-                                                value={otpInput}
-                                                onChange={(e) => {
-                                                    setOtpInput(e.target.value.replace(/\D/g, ''));
-                                                    if (otpError) setOtpError(null);
-                                                }}
-                                                className={`w-full py-5 bg-white border-2 rounded-2xl text-center text-3xl font-black tracking-[0.5em] focus:ring-4 transition-all outline-none placeholder:text-gray-300 placeholder:tracking-normal placeholder:text-[10px]
+                                        <div className="space-y-4">
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    maxLength="4"
+                                                    placeholder="ENTER PASSENGER OTP"
+                                                    value={otpInput}
+                                                    onChange={(e) => {
+                                                        setOtpInput(e.target.value.replace(/\D/g, ''));
+                                                        if (otpError) setOtpError(null);
+                                                    }}
+                                                    className={`w-full py-5 bg-white border-2 rounded-2xl text-center text-3xl font-black tracking-[0.5em] focus:ring-4 transition-all outline-none placeholder:text-gray-300 placeholder:tracking-normal placeholder:text-[10px]
                                                     ${otpError ? 'border-red-500 text-red-600 focus:ring-red-500/10' : 'border-amber-200 text-gray-900 focus:border-amber-500 focus:ring-amber-500/10'}
                                                 `}
-                                            />
-                                            {otpError && (
-                                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 translate-y-full bg-red-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-300 whitespace-nowrap z-20">
-                                                    {otpError.toUpperCase()}
-                                                </div>
-                                            )}
+                                                />
+                                                {otpError && (
+                                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 translate-y-full bg-red-500 text-white text-[9px] font-black px-3 py-1 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-300 whitespace-nowrap z-20">
+                                                        {otpError.toUpperCase()}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <button
+                                                className="w-full py-5 rounded-2xl font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest"
+                                                onClick={handleStartTrip}
+                                            >
+                                                <Play className="w-5 h-5 fill-white" /> Start Mission
+                                            </button>
+                                            <p className="text-center text-[9px] font-bold text-amber-600 uppercase tracking-widest px-4">
+                                                Ask the passenger for their 4-digit security code
+                                            </p>
                                         </div>
-
-                                        <button
-                                            className="w-full py-5 rounded-2xl font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase tracking-widest"
-                                            onClick={handleStartTrip}
-                                        >
-                                            <Play className="w-5 h-5 fill-white" /> Start Mission
-                                        </button>
-                                        <p className="text-center text-[9px] font-bold text-amber-600 uppercase tracking-widest px-4">
-                                            Ask the passenger for their 4-digit security code
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeRide.status === 'ongoing' && (
-                                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-bold text-center text-sm flex items-center justify-center gap-2">
-                                    <Route className="w-4 h-4" />
-                                    {Math.sqrt(Math.pow(location.lat - activeRide.dropoff.lat, 2) + Math.pow(location.lng - activeRide.dropoff.lng, 2)) < 0.0005
-                                        ? "Destination Reached!"
-                                        : "Heading to destination..."}
-                                </div>
-                            )}
-
-                            <div className="mb-4 flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
-                                <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Fare</span>
-                                <span className="text-xl font-black text-gray-900">₹{activeRide.fare}</span>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <button className="py-4 rounded-xl bg-gray-100 text-gray-800 font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-all">
-                                    <Phone className="w-4 h-4" /> Call
-                                </button>
-                                {activeRide.status === 'driver_assigned' && (
-                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arriving").catch(console.error)}>
-                                        <Navigation className="w-4 h-4" /> Coming
-                                    </button>
-                                )}
-                                {activeRide.status === 'arriving' && (
-                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 shadow-lg shadow-indigo-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arrived").catch(console.error)}>
-                                        <MapPin className="w-4 h-4" /> Here
-                                    </button>
-                                )}
-                                {activeRide.status === 'arrived' && (
-                                    <div className="col-span-1 opacity-50 cursor-not-allowed">
-                                        <button className="w-full py-4 rounded-xl font-bold text-gray-400 bg-gray-200 flex items-center justify-center gap-2" disabled>
-                                            <Play className="w-4 h-4 text-gray-300" /> Start
-                                        </button>
                                     </div>
                                 )}
+
                                 {activeRide.status === 'ongoing' && (
-                                    <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg shadow-emerald-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={handleCompleteTrip}>
-                                        <CheckCircle className="w-4 h-4" /> Done
-                                    </button>
+                                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-700 font-bold text-center text-sm flex items-center justify-center gap-2">
+                                        <Route className="w-4 h-4" />
+                                        {Math.sqrt(Math.pow(location.lat - activeRide.dropoff.lat, 2) + Math.pow(location.lng - activeRide.dropoff.lng, 2)) < 0.0005
+                                            ? "Destination Reached!"
+                                            : "Heading to destination..."}
+                                    </div>
                                 )}
+
+                                <div className="mb-4 flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Fare</span>
+                                    <span className="text-xl font-black text-gray-900">₹{activeRide.fare}</span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button className="py-4 rounded-xl bg-gray-100 text-gray-800 font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-all">
+                                        <Phone className="w-4 h-4" /> Call
+                                    </button>
+                                    {activeRide.status === 'driver_assigned' && (
+                                        <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arriving").catch(console.error)}>
+                                            <Navigation className="w-4 h-4" /> Coming
+                                        </button>
+                                    )}
+                                    {activeRide.status === 'arriving' && (
+                                        <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 shadow-lg shadow-indigo-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={() => updateStatus(activeRide._id, "arrived").catch(console.error)}>
+                                            <MapPin className="w-4 h-4" /> Here
+                                        </button>
+                                    )}
+                                    {activeRide.status === 'arrived' && (
+                                        <div className="col-span-1 opacity-50 cursor-not-allowed">
+                                            <button className="w-full py-4 rounded-xl font-bold text-gray-400 bg-gray-200 flex items-center justify-center gap-2" disabled>
+                                                <Play className="w-4 h-4 text-gray-300" /> Start
+                                            </button>
+                                        </div>
+                                    )}
+                                    {activeRide.status === 'ongoing' && (
+                                        <button className="py-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-lg shadow-emerald-500/30 hover:scale-[1.02] transition-all flex items-center justify-center gap-2" onClick={handleCompleteTrip}>
+                                            <CheckCircle className="w-4 h-4" /> Done
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -826,12 +828,13 @@ function DriverDashboard() {
                 }
 
                 /* Header */
-                .dd-header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; sm:padding: 14px 28px; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+                .dd-header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+                @media (min-width: 640px) { .dd-header { padding: 14px 28px; } }
 
                 /* Stats strip */
                 .dd-stats-strip { position: relative; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.08); }
-                @media (max-width: 480px) { .dd-stats-strip { grid-template-columns: repeat(2, 1fr); } }
-                .dd-stat-card { display: flex; flex-direction: column; align-items: center; padding: 14px 8px; sm:padding: 18px 12px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); transition: all 0.3s; cursor: pointer; border: none; outline: none; }
+                @media (max-width: 600px) { .dd-stats-strip { grid-template-columns: repeat(2, 1fr); } }
+                .dd-stat-card { display: flex; flex-direction: column; align-items: center; padding: 12px 6px; sm:padding: 18px 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: all 0.3s; cursor: pointer; border: none; outline: none; width: 100%; }
                 .dd-stat-card:hover { background: rgba(251,191,36,0.15); }
 
                 /* Main layout */
@@ -841,11 +844,14 @@ function DriverDashboard() {
                 .dd-right { display: flex; flex-direction: column; gap: 16px; sm:gap: 24px; }
 
                 /* Map with gradient border */
-                .dd-map-border { padding: 2px; sm:padding: 3px; border-radius: 20px; sm:border-radius: 24px; background: linear-gradient(135deg, #fbbf24, #f59e0b, #f97316); box-shadow: 0 8px 32px rgba(251,191,36,0.2); }
-                .dd-map-inner { position: relative; height: 300px; sm:height: 400px; lg:height: 500px; border-radius: 18px; sm:border-radius: 21px; overflow: hidden; background: #0a0a0f; }
+                .dd-map-border { padding: 2px; border-radius: 20px; sm:border-radius: 24px; background: linear-gradient(135deg, #fbbf24, #f59e0b, #f97316); box-shadow: 0 8px 32px rgba(251,191,36,0.2); }
+                .dd-map-inner { position: relative; height: 260px; sm:height: 400px; lg:height: 500px; border-radius: 18px; sm:border-radius: 21px; overflow: hidden; background: #0a0a0f; }
 
                 /* Cards */
-                .dd-glass-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(24px); padding: 20px; sm:padding: 28px; border-radius: 20px; sm:border-radius: 24px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+                .dd-glass-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(24px); padding: 16px; sm:padding: 28px; border-radius: 20px; sm:border-radius: 24px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; }
+                .dd-active-ride-content { max-height: 70vh; overflow-y: auto; padding-right: 4px; }
+                .dd-active-ride-content::-webkit-scrollbar { width: 4px; }
+                .dd-active-ride-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 
                 /* Toggle Switch */
                 .switch { position: relative; display: inline-block; width: 44px; sm:width: 54px; height: 24px; sm:height: 28px; }

@@ -332,8 +332,16 @@ export default function Home() {
   const lastBoundsUpdateRef = useRef(0);
 
   const getFareRate = (type) => {
-    const rates = { Mini: 12, Sedan: 15, SUV: 20, Auto: 9, Bike: 6 };
-    return rates[type] || 20;
+    if (!type) {
+      console.warn("getFareRate: type is undefined, falling back to 1.0");
+      return 1.0;
+    }
+    const rates = { mini: 12, sedan: 15, suv: 20, auto: 9, bike: 6 };
+    const rate = rates[type.toLowerCase()];
+    if (rate === undefined) {
+      console.warn(`getFareRate: type "${type}" not found in rates, falling back to 1.0`);
+    }
+    return rate || 1.0; // Use a unique fallback to distinguish from SUV (20)
   };
 
   useEffect(() => {
@@ -620,7 +628,8 @@ export default function Home() {
           pickup: { address: pickupInput, lat: pickupCoords[0], lng: pickupCoords[1] },
           dropoff: { address: dropoffInput, lat: dropoffCoords[0], lng: dropoffCoords[1] },
           cabType: selectedCabType,
-          fare: (routeSummary.distance * getFareRate(selectedCabType)).toFixed(0),
+          distance: routeSummary.distance,
+          fare: (parseFloat(routeSummary.distance) * getFareRate(selectedCabType)).toFixed(0),
           scheduledDateTime: bookingType === "scheduled" ? scheduledDateTime : null,
         }),
       });
@@ -805,8 +814,9 @@ export default function Home() {
                                   <p className="text-[9px] font-black uppercase tracking-widest text-primary/80">{routeSummary.distance} km • {routeSummary.time} min est.</p>
                                 </div>
                                 <p className="text-4xl font-black text-white tracking-tighter">
-                                  ₹{Math.round(routeSummary.distance * getFareRate(selectedCabType))}
+                                  ₹{Math.round(parseFloat(routeSummary.distance) * getFareRate(selectedCabType))}
                                 </p>
+                                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Rate: ₹{getFareRate(selectedCabType)}/km</p>
                                 <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest mt-1">Total fare estimation</p>
                               </div>
                             </div>
@@ -914,7 +924,7 @@ export default function Home() {
                         <Button
                           variant="outline"
                           onClick={handleCancelRide}
-                          className="w-full py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-white/40 border-white/10 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-500"
+                          className="w-full py-6 rounded-2xl font-black text-[12px] uppercase tracking-[0.25em] text-red-500 border-red-500/30 bg-red-500/5 hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-[0_0_20px_rgba(220,38,38,0.2)] transition-all duration-500"
                         >
                           Abort Mission
                         </Button>
